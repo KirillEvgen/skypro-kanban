@@ -1,0 +1,58 @@
+export const cardList = [
+  {
+    id: 1,
+    topic: "Web Design",
+    title: "Название задачи",
+    date: "30.10.23",
+    status: "Без статуса",
+  },
+  {
+    id: 2,
+    topic: "Research",
+    title: "Новая задача",
+    date: "31.10.23",
+    status: "Нужно сделать",
+  },
+  {
+    id: 3,
+    topic: "Copywriting",
+    title: "Написать текст",
+    date: "01.11.23",
+    status: "В работе",
+  },
+  {
+    id: 4,
+    topic: "Web Design",
+    title: "Создать макет",
+    date: "02.11.23",
+    status: "Тестирование",
+  },
+  {
+    id: 5,
+    topic: "Research",
+    title: "Анализ конкурентов",
+    date: "03.11.23",
+    status: "Готово",
+  },
+  {
+    id: 6,
+    topic: "Copywriting",
+    title: "SEO оптимизация",
+    date: "04.11.23",
+    status: "Без статуса",
+  },
+  {
+    id: 7,
+    topic: "Web Design",
+    title: "Адаптивная верстка",
+    date: "05.11.23",
+    status: "Нужно сделать",
+  },
+  {
+    id: 8,
+    topic: "Research",
+    title: "Исследование рынка",
+    date: "06.11.23",
+    status: "В работе",
+  },
+];

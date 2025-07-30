@@ -1,4 +1,6 @@
 import "./App.css";
+import { useState, useEffect } from "react";
+import { cardList } from "./data";
 import Main from "./components/Main/Main";
 import Header from "./components/Header/Header";
 import Column from "./components/Column/Column";
@@ -9,7 +11,61 @@ import PopNewCard from "./components/popups/PopNewCard/PopNewCard";
 import PopUser from "./components/popups/PopUser/PopUser";
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [cards, setCards] = useState([]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCards(cardList);
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const getThemeClass = (topic) => {
+    switch (topic) {
+      case "Web Design":
+        return "_orange";
+      case "Research":
+        return "_green";
+      case "Copywriting":
+        return "_purple";
+      default:
+        return "_gray";
+    }
+  };
+
   
+  const getCardsByStatus = (status) => {
+    return cards.filter((card) => card.status === status);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="wrapper">
+        <Header />
+        <main className="main">
+          <div className="container">
+            <div className="main__block">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "50vh",
+                  fontSize: "18px",
+                  color: "#94A6BE",
+                }}
+              >
+                Данные загружаются...
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -23,80 +79,59 @@ function App() {
         <Main>
           <div className="main__content">
             <Column title="Без статуса">
-              <Card
-                themeClass="_orange"
-                themeText="Web Design"
-                title="Название задачи"
-                date="30.10.23"
-              />
-              <Card
-                themeClass="_green"
-                themeText="Research"
-                title="Название задачи"
-                date="30.10.23"
-              />
-              <Card
-                themeClass="_orange"
-                themeText="Web Design"
-                title="Название задачи"
-                date="30.10.23"
-              />
-              <Card
-                themeClass="_purple"
-                themeText="Copywriting"
-                title="Название задачи"
-                date="30.10.23"
-              />
-              <Card
-                themeClass="_orange"
-                themeText="Web Design"
-                title="Название задачи"
-                date="30.10.23"
-              />
+              {getCardsByStatus("Без статуса").map((card) => (
+                <Card
+                  key={card.id}
+                  themeClass={getThemeClass(card.topic)}
+                  themeText={card.topic}
+                  title={card.title}
+                  date={card.date}
+                />
+              ))}
             </Column>
             <Column title="Нужно сделать">
-              <Card
-                themeClass="_green"
-                themeText="Research"
-                title="Название задачи"
-                date="30.10.23"
-              />
+              {getCardsByStatus("Нужно сделать").map((card) => (
+                <Card
+                  key={card.id}
+                  themeClass={getThemeClass(card.topic)}
+                  themeText={card.topic}
+                  title={card.title}
+                  date={card.date}
+                />
+              ))}
             </Column>
             <Column title="В работе">
-              <Card
-                themeClass="_green"
-                themeText="Research"
-                title="Название задачи"
-                date="30.10.23"
-              />
-              <Card
-                themeClass="_purple"
-                themeText="Copywriting"
-                title="Название задачи"
-                date="30.10.23"
-              />
-              <Card
-                themeClass="_orange"
-                themeText="Web Design"
-                title="Название задачи"
-                date="30.10.23"
-              />
+              {getCardsByStatus("В работе").map((card) => (
+                <Card
+                  key={card.id}
+                  themeClass={getThemeClass(card.topic)}
+                  themeText={card.topic}
+                  title={card.title}
+                  date={card.date}
+                />
+              ))}
             </Column>
             <Column title="Тестирование">
-              <Card
-                themeClass="_green"
-                themeText="Research"
-                title="Название задачи"
-                date="30.10.23"
-              />
+              {getCardsByStatus("Тестирование").map((card) => (
+                <Card
+                  key={card.id}
+                  themeClass={getThemeClass(card.topic)}
+                  themeText={card.topic}
+                  title={card.title}
+                  date={card.date}
+                />
+              ))}
             </Column>
             <Column title="Готово">
-              <Card
-                themeClass="_green"
-                themeText="Research"
-                title="Название задачи"
-                date="30.10.23"
-              />
+              {getCardsByStatus("Готово").map((card) => (
+                <Card
+                  key={card.id}
+                  themeClass={getThemeClass(card.topic)}
+                  themeText={card.topic}
+                  title={card.title}
+                  date={card.date}
+                />
+              ))}
             </Column>
           </div>
         </Main>
