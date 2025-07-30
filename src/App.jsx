@@ -9,7 +9,7 @@ import PopNewCard from "./components/popups/PopNewCard/PopNewCard";
 import PopUser from "./components/popups/PopUser/PopUser";
 
 function App() {
-  // const [count, setCount] = useState(0)
+  
 
   return (
     <>
