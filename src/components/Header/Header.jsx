@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Header = () => {
+const Header = ({ onOpenPopUser, onOpenPopNewCard }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleUserClick = () => {
@@ -22,8 +22,12 @@ const Header = () => {
             </a>
           </div>
           <nav className="header__nav">
-            <button className="header__btn-main-new _hover01" id="btnMainNew">
-              <a href="#popNewCard">Создать новую задачу</a>
+            <button
+              className="header__btn-main-new _hover01"
+              id="btnMainNew"
+              onClick={onOpenPopNewCard}
+            >
+              Создать новую задачу
             </button>
             <a
               href="#user-set-target"
@@ -43,8 +47,15 @@ const Header = () => {
                 <p>Темная тема</p>
                 <input type="checkbox" className="checkbox" name="checkbox" />
               </div>
-              <button type="button" className="_hover03">
-                <a href="#popExit">Выйти</a>
+              <button
+                type="button"
+                className="_hover03"
+                onClick={() => {
+                  setIsUserMenuOpen(false);
+                  onOpenPopUser();
+                }}
+              >
+                Выйти
               </button>
             </div>
           </nav>

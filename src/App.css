@@ -52,7 +52,7 @@ body {
 }
 
 .container {
-  max-width: 1260px;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
   padding: 0 30px;
@@ -197,7 +197,7 @@ body {
   line-height: 21px;
   font-weight: 500;
   letter-spacing: -0.14px;
-  color: #ffffff;
+  color: #565eef;
 }
 .pop-exit__exit-no a {
   width: 100%;
@@ -407,10 +407,10 @@ body {
 
 .calendar {
   width: 182px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 .calendar__ttl {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   padding: 0 7px;
 }
 .calendar__p {
@@ -431,14 +431,14 @@ body {
   font-weight: 600;
 }
 .calendar__content {
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 .calendar__days-names {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  margin: 7px 0;
+  margin: 10px 0;
   padding: 0 7px;
 }
 .calendar__day-name {
@@ -474,7 +474,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 14px;
+  margin-top: 16px;
   padding: 0 7px;
 }
 .calendar__period {
@@ -812,16 +812,20 @@ body {
 .main__content {
   width: 100%;
   display: flex;
+  gap: 15px;
+  padding: 0 20px;
+  justify-content: center;
 }
 .main__column {
-  width: 20%;
-  margin: 0 auto;
+  width: 18%;
+  min-width: 200px;
+  margin: 0;
   display: block;
 }
 
 .column__title {
   padding: 0 10px;
-  margin: 15px 0;
+  margin: 20px 0 15px;
 }
 .column__title p {
   color: #94a6be;
@@ -837,27 +841,29 @@ body {
   position: relative;
 }
 .cards__item {
-  padding: 5px;
+  padding: 8px;
+  margin-bottom: 10px;
   animation-name: card-animation;
   animation-duration: 500ms;
   animation-timing-function: linear;
 }
 .cards__card {
-  width: 220px;
-  height: 130px;
+  width: 100%;
+  min-height: 130px;
   background-color: #ffffff;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: stretch;
-  padding: 15px 13px 19px;
+  padding: 20px 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card__group {
   width: 100%;
   height: 20px;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -892,10 +898,10 @@ body {
   font-weight: 500;
   line-height: 18px;
   color: #000000;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .card__content {
-  height: 64px;
+  min-height: 64px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -924,28 +930,32 @@ body {
     padding: 40px 0 64px;
   }
   .main__content {
-    display: block;
+    display: flex;
+    gap: 10px;
+    padding: 0 15px;
+    justify-content: center;
   }
   .main__column {
-    width: 100%;
-    margin: 0 auto;
+    width: 18%;
+    min-width: 180px;
+    margin: 0;
     display: block;
   }
   .cards {
     width: 100%;
-    display: flex;
-    overflow-y: auto;
+    display: block;
+    position: relative;
   }
   .cards__card {
-    width: 220px;
-    height: 130px;
+    width: 100%;
+    min-height: 130px;
     background-color: #ffffff;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: stretch;
-    padding: 15px 13px 19px;
+    padding: 20px 15px;
   }
 }
 @media screen and (max-width: 660px) {
