@@ -44,10 +44,9 @@ body {
 }
 
 .wrapper {
-  max-width: 100%;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
   background-color: #f1f1f1;
 }
 
@@ -88,23 +87,23 @@ body {
 }
 
 ._orange {
-  background-color: #ffe4c2;
-  color: #ff6d00;
+  background-color: #ffe4c2 !important;
+  color: #ff6d00 !important;
 }
 
 ._green {
-  background-color: #b4fdd1;
-  color: #06b16e;
+  background-color: #b4fdd1 !important;
+  color: #06b16e !important;
 }
 
 ._purple {
-  background-color: #e9d4ff;
-  color: #9a48f1;
+  background-color: #e9d4ff !important;
+  color: #9a48f1 !important;
 }
 
 ._gray {
-  background: #94a6be;
-  color: #ffffff;
+  background: #94a6be !important;
+  color: #ffffff !important;
 }
 
 ._active-category {
@@ -725,6 +724,10 @@ body {
   width: 100%;
   margin: 0 auto;
   background-color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .header__block {
   height: 70px;
@@ -735,17 +738,26 @@ body {
   position: relative;
   top: 0;
   left: 0;
-  padding: 0 10px;
+  padding: 0;
 }
 .header__logo img {
   width: 85px;
+  height: auto;
+  display: block;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.header__logo img:hover {
+  opacity: 0.8;
 }
 .header__nav {
   max-width: 290px;
   padding: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+  gap: 20px;
 }
 .header__btn-main-new {
   width: 178px;
@@ -757,7 +769,8 @@ body {
   font-size: 14px;
   line-height: 1;
   font-weight: 500;
-  margin-right: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 .header__btn-main-new a {
   color: #ffffff;
@@ -771,6 +784,12 @@ body {
   font-size: 14px;
   line-height: 20px;
   color: #565eef;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
 .header__user::after {
   content: "";
@@ -785,7 +804,6 @@ body {
   padding: 0;
 }
 .header__pop-user-set {
-  display: none;
   position: absolute;
   top: 61px;
   right: 0;
@@ -803,6 +821,7 @@ body {
 .main {
   width: 100%;
   background-color: #eaeef6;
+  min-height: calc(100vh - 70px);
 }
 .main__block {
   width: 100%;
@@ -813,14 +832,17 @@ body {
   width: 100%;
   display: flex;
   gap: 15px;
-  padding: 0 20px;
   justify-content: center;
+  align-items: flex-start;
 }
 .main__column {
   width: 18%;
   min-width: 200px;
+  max-width: 250px;
   margin: 0;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .column__title {
@@ -833,12 +855,15 @@ body {
   font-weight: 600;
   line-height: 1;
   text-transform: uppercase;
+  margin: 0;
 }
 
 .cards {
   width: 100%;
-  display: block;
+  display: flex;
+  flex-direction: column;
   position: relative;
+  flex: 1;
 }
 .cards__item {
   padding: 8px;
@@ -846,6 +871,7 @@ body {
   animation-name: card-animation;
   animation-duration: 500ms;
   animation-timing-function: linear;
+  flex-shrink: 0;
 }
 .cards__card {
   width: 100%;
@@ -858,6 +884,12 @@ body {
   justify-content: stretch;
   padding: 20px 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.cards__card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card__group {
@@ -867,17 +899,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 }
 .card__theme {
   width: auto;
   height: 20px;
   padding: 5px 14px;
   border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .card__theme p {
   font-size: 10px;
   font-weight: 600;
   line-height: 10px;
+  margin: 0;
+  white-space: nowrap;
 }
 .card__btn {
   width: 24px;
@@ -886,12 +924,22 @@ body {
   align-items: center;
   justify-content: space-around;
   padding: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  background: none;
+  border: none;
+}
+
+.card__btn:hover {
+  background-color: #f5f5f5;
 }
 .card__btn div {
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background-color: #94a6be;
+  margin: 0 1px;
 }
 .card__title {
   font-size: 14px;
@@ -899,6 +947,14 @@ body {
   line-height: 18px;
   color: #000000;
   margin-bottom: 12px;
+  margin-top: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.card__title:hover {
+  color: #565eef;
 }
 .card__content {
   min-height: 64px;
@@ -906,11 +962,15 @@ body {
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
+  flex: 1;
+  height: 100%;
 }
 .card__date {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 .card__date svg {
   width: 13px;
@@ -921,6 +981,8 @@ body {
   line-height: 13px;
   color: #94a6be;
   letter-spacing: 0.2px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 @media screen and (max-width: 1200px) {
@@ -934,12 +996,15 @@ body {
     gap: 10px;
     padding: 0 15px;
     justify-content: center;
+    flex-wrap: wrap;
   }
   .main__column {
     width: 18%;
     min-width: 180px;
+    max-width: none;
     margin: 0;
     display: block;
+    flex: 1;
   }
   .cards {
     width: 100%;
@@ -958,6 +1023,30 @@ body {
     padding: 20px 15px;
   }
 }
+@media screen and (max-width: 768px) {
+  .main__content {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .main__column {
+    width: 100%;
+    max-width: 400px;
+    min-width: auto;
+  }
+  .header__nav {
+    max-width: 200px;
+    gap: 10px;
+  }
+  .header__btn-main-new {
+    width: 140px;
+    font-size: 12px;
+  }
+  .header__block {
+    padding: 0 10px;
+  }
+}
+
 @media screen and (max-width: 660px) {
   .pop-new-card {
     top: 70px;
@@ -1021,6 +1110,28 @@ body {
   .container {
     width: 100%;
     padding: 0 16px;
+    max-width: 100%;
+  }
+  .main__content {
+    padding: 0;
+  }
+  .main__column {
+    max-width: 100%;
+    width: 100%;
+  }
+  .header__nav {
+    max-width: 150px;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .header__btn-main-new {
+    width: 120px;
+    font-size: 11px;
+    height: 25px;
+  }
+  .header__block {
+    padding: 0 5px;
+    height: 60px;
   }
   .header__btn-main-new {
     z-index: 3;
@@ -1032,6 +1143,7 @@ body {
     height: 40px;
     border-radius: 4px;
     margin-right: 0;
+    font-size: 14px;
   }
   .pop-new-card__container {
     padding: 0;
@@ -1039,6 +1151,10 @@ body {
   }
   .pop-new-card__block {
     padding: 20px 16px 32px;
+  }
+  .main__block {
+    padding: 15px 0 80px;
+    min-height: calc(100vh - 70px - 80px);
   }
   .pop-new-card__form {
     max-width: 100%;
@@ -1051,6 +1167,83 @@ body {
   .form-new__area {
     max-width: 100%;
     height: 34px;
+  }
+  .cards__card {
+    padding: 15px 12px;
+  }
+  .column__title {
+    padding: 0 5px;
+    margin: 15px 0 10px;
+  }
+  .card__theme {
+    padding: 4px 10px;
+  }
+  .card__theme p {
+    font-size: 9px;
+  }
+  .card__title {
+    font-size: 13px;
+    line-height: 16px;
+  }
+  .card__date p {
+    font-size: 9px;
+  }
+  .card__date svg {
+    width: 11px;
+    height: 11px;
+  }
+  .card__btn {
+    width: 20px;
+    height: 20px;
+  }
+  .card__btn div {
+    width: 3px;
+    height: 3px;
+  }
+  .card__group {
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+  .card__content {
+    min-height: 50px;
+  }
+  .cards__card {
+    min-height: 110px;
+  }
+  .main__content {
+    gap: 15px;
+  }
+  .header__logo img {
+    width: 70px;
+  }
+  .header__user {
+    font-size: 12px;
+  }
+  .header__pop-user-set {
+    width: 180px;
+    height: 180px;
+    padding: 20px;
+  }
+  .pop-user-set__name,
+  .pop-user-set__mail,
+  .pop-user-set__theme p {
+    font-size: 12px;
+  }
+  .pop-user-set button {
+    width: 60px;
+    height: 25px;
+    font-size: 12px;
+  }
+  .pop-user-set__theme input[type="checkbox"] {
+    width: 20px;
+    height: 11px;
+  }
+  .pop-user-set__theme input[type="checkbox"]::before {
+    width: 9px;
+    height: 9px;
+  }
+  .pop-user-set__theme input:checked[type="checkbox"]::before {
+    left: 10px;
   }
   .form-new__create {
     width: 100%;
@@ -1112,10 +1305,10 @@ body {
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
 }
 
 .logo {

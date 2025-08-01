@@ -6,20 +6,23 @@ const Card = ({ themeClass, themeText, title, date }) => {
       <div className="cards__card card">
         <div className="card__group">
           <div className={`card__theme ${themeClass}`}>
-            <p className={themeClass}>{themeText}</p>
+            <p>{themeText}</p>
           </div>
-          <a href="#popBrowse" target="_self">
-            <div className="card__btn">
-              <div></div>
-              <div></div>
-              <div></div>
-            </div>
-          </a>
+          <button
+            type="button"
+            className="card__btn"
+            onClick={() => {
+              // Здесь можно добавить логику для открытия модального окна просмотра карточки
+              console.log("Открыть карточку:", title);
+            }}
+          >
+            <div></div>
+            <div></div>
+            <div></div>
+          </button>
         </div>
         <div className="card__content">
-          <a href="" target="_blank">
-            <h3 className="card__title">{title}</h3>
-          </a>
+          <h3 className="card__title">{title}</h3>
           <div className="card__date">
             <svg
               xmlns="http://www.w3.org/2000/svg"
