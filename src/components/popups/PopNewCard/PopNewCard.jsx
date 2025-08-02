@@ -1,14 +1,21 @@
 import React from "react";
 import Calendar from "../../Calendar/Calendar";
 
-const PopNewCard = () => {
+const PopNewCard = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
   return (
-    <div className="pop-new-card" id="popNewCard">
+    <div
+      className="pop-new-card"
+      id="popNewCard"
+      style={{ display: "block" }}
+      translate="no"
+    >
       <div className="pop-new-card__container">
         <div className="pop-new-card__block">
           <div className="pop-new-card__content">
             <h3 className="pop-new-card__ttl">Создание задачи</h3>
-            <a href="#" className="pop-new-card__close">
+            <a href="#" className="pop-new-card__close" onClick={onClose}>
               &#10006;
             </a>
             <div className="pop-new-card__wrap">
@@ -58,7 +65,12 @@ const PopNewCard = () => {
                 </div>
               </div>
             </div>
-            <button className="form-new__create _hover01" id="btnCreate">
+            <button
+              className="form-new__create _hover01"
+              id="btnCreate"
+              style={{ content: "none", color: "#ffffff" }}
+              translate="no"
+            >
               Создать задачу
             </button>
           </div>
