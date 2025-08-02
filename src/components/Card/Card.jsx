@@ -1,9 +1,9 @@
 import React from "react";
 
-const Card = ({ themeClass, themeText, title, date }) => {
+const Card = ({ themeClass, themeText, title, date, onClick }) => {
   return (
     <div className="cards__item">
-      <div className="cards__card card">
+      <div className="cards__card card" onClick={onClick}>
         <div className="card__group">
           <div className={`card__theme ${themeClass}`}>
             <p>{themeText}</p>
@@ -11,9 +11,9 @@ const Card = ({ themeClass, themeText, title, date }) => {
           <button
             type="button"
             className="card__btn"
-            onClick={() => {
-              // Здесь можно добавить логику для открытия модального окна просмотра карточки
-              console.log("Открыть карточку:", title);
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("⋯ нажатие");
             }}
           >
             <div></div>

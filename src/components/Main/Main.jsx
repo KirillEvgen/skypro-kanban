@@ -3,7 +3,7 @@ import Column from "../Column/Column";
 import Card from "../Card/Card";
 import { cardList } from "../../data";
 
-const Main = () => {
+const Main = ({ onOpenPopBrowse }) => {
   const columnTitles = [
     "Без статуса",
     "Нужно сделать",
@@ -43,6 +43,7 @@ const Main = () => {
                     themeText={card.topic}
                     title={card.title}
                     date={card.date}
+                    onClick={() => onOpenPopBrowse(card)}
                   />
                 ))}
               </Column>

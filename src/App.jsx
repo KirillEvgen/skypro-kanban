@@ -10,11 +10,22 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPopUserOpen, setIsPopUserOpen] = useState(false);
   const [isPopNewCardOpen, setIsPopNewCardOpen] = useState(false);
+  const [isPopBrowseOpen, setIsPopBrowseOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
 
   const handleOpenPopUser = () => setIsPopUserOpen(true);
   const handleClosePopUser = () => setIsPopUserOpen(false);
   const handleOpenPopNewCard = () => setIsPopNewCardOpen(true);
   const handleClosePopNewCard = () => setIsPopNewCardOpen(false);
+
+  const handleOpenPopBrowse = (cardData) => {
+    setSelectedCard(cardData);
+    setIsPopBrowseOpen(true);
+  };
+  const handleClosePopBrowse = () => {
+    setIsPopBrowseOpen(false);
+    setSelectedCard(null);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -51,20 +62,20 @@ function App() {
   }
 
   return (
-    <>
-      <div className="wrapper">
-        {/* pop-up start */}
-        <PopUser isOpen={isPopUserOpen} onClose={handleClosePopUser} />
-        <PopNewCard isOpen={isPopNewCardOpen} onClose={handleClosePopNewCard} />
-        <PopBrowse />
-        {/* pop-up end */}
-        <Header
-          onOpenPopUser={handleOpenPopUser}
-          onOpenPopNewCard={handleOpenPopNewCard}
-        />
-        <Main />
-      </div>
-    </>
+    <div className="wrapper">
+      <PopUser isOpen={isPopUserOpen} onClose={handleClosePopUser} />
+      <PopNewCard isOpen={isPopNewCardOpen} onClose={handleClosePopNewCard} />
+      <PopBrowse
+        isOpen={isPopBrowseOpen}
+        onClose={handleClosePopBrowse}
+        card={selectedCard}
+      />
+      <Header
+        onOpenPopUser={handleOpenPopUser}
+        onOpenPopNewCard={handleOpenPopNewCard}
+      />
+      <Main onOpenPopBrowse={handleOpenPopBrowse} />
+    </div>
   );
 }
 
