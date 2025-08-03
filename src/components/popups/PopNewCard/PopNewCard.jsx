@@ -8,7 +8,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
     <div
       className="pop-new-card"
       id="popNewCard"
-      style={{ display: "block" }}
+      style={{ display: isOpen ? "block" : "none" }}
       translate="no"
     >
       <div className="pop-new-card__container">

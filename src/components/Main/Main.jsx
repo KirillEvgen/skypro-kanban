@@ -43,7 +43,10 @@ const Main = ({ onOpenPopBrowse }) => {
                     themeText={card.topic}
                     title={card.title}
                     date={card.date}
-                    onClick={() => onOpenPopBrowse(card)}
+                    onOpenCard={() => {
+                      console.log("Клик по карточке:", card);
+                      onOpenPopBrowse(card);
+                    }}
                   />
                 ))}
               </Column>

@@ -15,13 +15,16 @@ function App() {
 
   const handleOpenPopUser = () => setIsPopUserOpen(true);
   const handleClosePopUser = () => setIsPopUserOpen(false);
+
   const handleOpenPopNewCard = () => setIsPopNewCardOpen(true);
   const handleClosePopNewCard = () => setIsPopNewCardOpen(false);
 
-  const handleOpenPopBrowse = (cardData) => {
-    setSelectedCard(cardData);
+  const handleOpenCard = (card) => {
+    console.log("handleOpenCard вызван с карточкой:", card);
+    setSelectedCard(card);
     setIsPopBrowseOpen(true);
   };
+
   const handleClosePopBrowse = () => {
     setIsPopBrowseOpen(false);
     setSelectedCard(null);
@@ -30,8 +33,7 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
-
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -65,16 +67,13 @@ function App() {
     <div className="wrapper">
       <PopUser isOpen={isPopUserOpen} onClose={handleClosePopUser} />
       <PopNewCard isOpen={isPopNewCardOpen} onClose={handleClosePopNewCard} />
-      <PopBrowse
-        isOpen={isPopBrowseOpen}
-        onClose={handleClosePopBrowse}
-        card={selectedCard}
-      />
+      <PopBrowse isOpen={isPopBrowseOpen} onClose={handleClosePopBrowse} card={selectedCard} />
+
       <Header
         onOpenPopUser={handleOpenPopUser}
         onOpenPopNewCard={handleOpenPopNewCard}
       />
-      <Main onOpenPopBrowse={handleOpenPopBrowse} />
+      <Main onOpenPopBrowse={handleOpenCard} />
     </div>
   );
 }

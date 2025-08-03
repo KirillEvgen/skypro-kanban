@@ -14,7 +14,11 @@ const PopUser = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="pop-exit" id="popExit" style={{ display: "block" }}>
+    <div
+      className="pop-exit"
+      id="popExit"
+      style={{ display: isOpen ? "block" : "none" }}
+    >
       <div className="pop-exit__container" onClick={handleBackdropClick}>
         <div className="pop-exit__block">
           <div className="pop-exit__ttl">
