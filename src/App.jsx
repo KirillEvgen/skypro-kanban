@@ -67,7 +67,11 @@ function App() {
     <div className="wrapper">
       <PopUser isOpen={isPopUserOpen} onClose={handleClosePopUser} />
       <PopNewCard isOpen={isPopNewCardOpen} onClose={handleClosePopNewCard} />
-      <PopBrowse isOpen={isPopBrowseOpen} onClose={handleClosePopBrowse} card={selectedCard} />
+      <PopBrowse
+        isOpen={isPopBrowseOpen}
+        onClose={handleClosePopBrowse}
+        card={selectedCard}
+      />
 
       <Header
         onOpenPopUser={handleOpenPopUser}

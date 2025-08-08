@@ -1,13 +1,14 @@
 import React from "react";
+import { ColumnContainer, ColumnTitle, CardsContainer } from "./Column.styled";
 
 const Column = ({ title, children }) => {
   return (
-    <div className="main__column">
-      <div className="column__title">
+    <ColumnContainer>
+      <ColumnTitle>
         <p>{title}</p>
-      </div>
-      <div className="cards">{children}</div>
-    </div>
+      </ColumnTitle>
+      <CardsContainer>{children}</CardsContainer>
+    </ColumnContainer>
   );
 };
 
