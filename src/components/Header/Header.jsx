@@ -1,4 +1,18 @@
 import React, { useState } from "react";
+import {
+  HeaderContainer,
+  HeaderBlock,
+  HeaderLogo,
+  HeaderNav,
+  HeaderBtnMainNew,
+  HeaderUser,
+  HeaderPopUserSet,
+  PopUserSetName,
+  PopUserSetMail,
+  PopUserSetTheme,
+  PopUserSetButton,
+} from "./Header.styled";
+import { Container } from "../shared/Shared.styled";
 
 const Header = ({ onOpenPopUser, onOpenPopNewCard }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -8,52 +22,37 @@ const Header = ({ onOpenPopUser, onOpenPopNewCard }) => {
   };
 
   return (
-    <header className="header">
-      <div className="container">
-        <div className="header__block">
-          <div className="header__logo">
+    <HeaderContainer>
+      <Container>
+        <HeaderBlock>
+          <HeaderLogo>
             <img src="/images/logo.png" alt="logo" />
-          </div>
-          <nav className="header__nav">
-            <button
-              className="header__btn-main-new _hover01"
-              id="btnMainNew"
-              onClick={onOpenPopNewCard}
-            >
+          </HeaderLogo>
+          <HeaderNav>
+            <HeaderBtnMainNew id="btnMainNew" onClick={onOpenPopNewCard}>
               Создать новую задачу
-            </button>
-            <button
-              type="button"
-              className="header__user _hover02"
-              onClick={handleUserClick}
-            >
-              Ivan Ivanov
-            </button>
-            <div
-              className="header__pop-user-set pop-user-set"
-              style={{ display: isUserMenuOpen ? "block" : "none" }}
-            >
-              <p className="pop-user-set__name">Ivan Ivanov</p>
-              <p className="pop-user-set__mail">ivan.ivanov@gmail.com</p>
-              <div className="pop-user-set__theme">
+            </HeaderBtnMainNew>
+            <HeaderUser onClick={handleUserClick}>Ivan Ivanov</HeaderUser>
+            <HeaderPopUserSet isOpen={isUserMenuOpen}>
+              <PopUserSetName>Ivan Ivanov</PopUserSetName>
+              <PopUserSetMail>ivan.ivanov@gmail.com</PopUserSetMail>
+              <PopUserSetTheme>
                 <p>Темная тема</p>
-                <input type="checkbox" className="checkbox" name="checkbox" />
-              </div>
-              <button
-                type="button"
-                className="_hover03"
+                <input type="checkbox" name="checkbox" />
+              </PopUserSetTheme>
+              <PopUserSetButton
                 onClick={() => {
                   setIsUserMenuOpen(false);
                   onOpenPopUser();
                 }}
               >
                 Выйти
-              </button>
-            </div>
-          </nav>
-        </div>
-      </div>
-    </header>
+              </PopUserSetButton>
+            </HeaderPopUserSet>
+          </HeaderNav>
+        </HeaderBlock>
+      </Container>
+    </HeaderContainer>
   );
 };
 

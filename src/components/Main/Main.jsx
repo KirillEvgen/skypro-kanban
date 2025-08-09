@@ -2,6 +2,8 @@ import React from "react";
 import Column from "../Column/Column";
 import Card from "../Card/Card";
 import { cardList } from "../../data";
+import { MainContainer, MainBlock, MainContent } from "./Main.styled";
+import { Container } from "../shared/Shared.styled";
 
 const Main = ({ onOpenPopBrowse }) => {
   const columnTitles = [
@@ -30,10 +32,10 @@ const Main = ({ onOpenPopBrowse }) => {
   };
 
   return (
-    <main className="main">
-      <div className="container">
-        <div className="main__block">
-          <div className="main__content">
+    <MainContainer>
+      <Container>
+        <MainBlock>
+          <MainContent>
             {columnTitles.map((title) => (
               <Column key={title} title={title}>
                 {getCardsByStatus(title).map((card) => (
@@ -51,10 +53,10 @@ const Main = ({ onOpenPopBrowse }) => {
                 ))}
               </Column>
             ))}
-          </div>
-        </div>
-      </div>
-    </main>
+          </MainContent>
+        </MainBlock>
+      </Container>
+    </MainContainer>
   );
 };
 
