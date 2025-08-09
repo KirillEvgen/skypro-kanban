@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CalendarContainer,
   CalendarTitle,
@@ -16,9 +16,23 @@ import {
   CalendarPeriodText,
 } from "./Calendar.styled";
 
-const Calendar = ({ current, active }) => {
-  const [currentDate, setCurrentDate] = useState(new Date(2023, 8, 1));
+const Calendar = ({ current, active, onDateSelect }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
+
+  // Инициализация с переданной датой или текущей
+  useEffect(() => {
+    if (current) {
+      setCurrentDate(new Date(current));
+    }
+  }, [current]);
+
+  // Установка активной даты
+  useEffect(() => {
+    if (active) {
+      setSelectedDate(new Date(active).getDate());
+    }
+  }, [active]);
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -34,10 +48,12 @@ const Calendar = ({ current, active }) => {
     const firstDayIndex = getFirstDayOfMonth(currentDate);
     const days = [];
 
+    // Добавляем пустые ячейки для дней предыдущего месяца
     for (let i = 0; i < firstDayIndex; i++) {
       days.push({ day: "", isCurrentMonth: false });
     }
 
+    // Добавляем дни текущего месяца
     for (let day = 1; day <= daysInMonth; day++) {
       days.push({ day, isCurrentMonth: true });
     }
@@ -48,6 +64,16 @@ const Calendar = ({ current, active }) => {
   const handleDateClick = (day) => {
     if (day && day.isCurrentMonth) {
       setSelectedDate(day.day);
+
+      // Создаем полную дату и вызываем callback
+      const selectedFullDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        day.day
+      );
+      if (onDateSelect) {
+        onDateSelect(selectedFullDate);
+      }
     }
   };
 
@@ -55,12 +81,14 @@ const Calendar = ({ current, active }) => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     );
+    setSelectedDate(null); // Сбрасываем выбранную дату при смене месяца
   };
 
   const handleNextMonth = () => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
     );
+    setSelectedDate(null); // Сбрасываем выбранную дату при смене месяца
   };
 
   const formatMonthYear = (date) => {
@@ -78,17 +106,63 @@ const Calendar = ({ current, active }) => {
       "Ноябрь",
       "Декабрь",
     ];
-    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+    return months[date.getMonth()];
+  };
+
+  const formatSelectedDate = () => {
+    if (!selectedDate) return "";
+
+    const day = selectedDate.toString().padStart(2, "0");
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const year = currentDate.getFullYear();
+
+    return `${day}.${month}.${year}`;
+  };
+
+  const isToday = (day) => {
+    const today = new Date();
+    return (
+      day === today.getDate() &&
+      currentDate.getMonth() === today.getMonth() &&
+      currentDate.getFullYear() === today.getFullYear()
+    );
   };
 
   return (
-    <CalendarContainer>
-      <CalendarTitle>Даты</CalendarTitle>
-      <CalendarBlock>
-        <CalendarNav>
-          <CalendarMonth>{formatMonthYear(currentDate)}</CalendarMonth>
-          <NavActions>
-            <NavAction onClick={handlePrevMonth}>
+    <CalendarContainer className="calendar">
+      <CalendarTitle className="calendar__ttl">Даты</CalendarTitle>
+      <CalendarBlock className="calendar__block">
+        <CalendarContent className="calendar__content">
+          <CalendarDaysNames className="calendar__days-names">
+            <CalendarDayName className="calendar__day-name">пн</CalendarDayName>
+            <CalendarDayName className="calendar__day-name">вт</CalendarDayName>
+            <CalendarDayName className="calendar__day-name">ср</CalendarDayName>
+            <CalendarDayName className="calendar__day-name">чт</CalendarDayName>
+            <CalendarDayName className="calendar__day-name">пт</CalendarDayName>
+            <CalendarDayName className="calendar__day-name">сб</CalendarDayName>
+            <CalendarDayName className="calendar__day-name">вс</CalendarDayName>
+          </CalendarDaysNames>
+          <CalendarCells className="calendar__cells">
+            {generateCalendarDays().map((dayObj, index) => (
+              <CalendarCell
+                key={index}
+                className={`calendar__cell ${dayObj.isOtherMonth ? "_other-month" : ""} ${isToday(dayObj.day) ? "_current" : ""} ${selectedDate === dayObj.day ? "_active-day" : ""}`}
+                isOtherMonth={!dayObj.isCurrentMonth}
+                isActiveDay={selectedDate === dayObj.day}
+                isToday={isToday(dayObj.day)}
+                onClick={() => handleDateClick(dayObj)}
+              >
+                {dayObj.day}
+              </CalendarCell>
+            ))}
+          </CalendarCells>
+        </CalendarContent>
+        <CalendarNav className="calendar__nav">
+          <CalendarMonth className="calendar__month">
+            {formatMonthYear(currentDate)}
+          </CalendarMonth>
+          <NavActions className="nav__actions">
+            <NavAction className="nav__action" onClick={handlePrevMonth}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="6"
@@ -98,7 +172,7 @@ const Calendar = ({ current, active }) => {
                 <path d="M5.72945 1.95273C6.09018 1.62041 6.09018 1.0833 5.72945 0.750969C5.36622 0.416344 4.7754 0.416344 4.41218 0.750969L0.528487 4.32883C-0.176162 4.97799 -0.176162 6.02201 0.528487 6.67117L4.41217 10.249C4.7754 10.5837 5.36622 10.5837 5.72945 10.249C6.09018 9.9167 6.09018 9.37959 5.72945 9.04727L1.87897 5.5L5.72945 1.95273Z" />
               </svg>
             </NavAction>
-            <NavAction onClick={handleNextMonth}>
+            <NavAction className="nav__action" onClick={handleNextMonth}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="6"
@@ -110,44 +184,15 @@ const Calendar = ({ current, active }) => {
             </NavAction>
           </NavActions>
         </CalendarNav>
-        <CalendarContent>
-          <CalendarDaysNames>
-            <CalendarDayName>пн</CalendarDayName>
-            <CalendarDayName>вт</CalendarDayName>
-            <CalendarDayName>ср</CalendarDayName>
-            <CalendarDayName>чт</CalendarDayName>
-            <CalendarDayName>пт</CalendarDayName>
-            <CalendarDayName>сб</CalendarDayName>
-            <CalendarDayName>вс</CalendarDayName>
-          </CalendarDaysNames>
-          <CalendarCells>
-            {generateCalendarDays().map((dayObj, index) => (
-              <CalendarCell
-                key={index}
-                isOtherMonth={!dayObj.isCurrentMonth}
-                isActiveDay={selectedDate === dayObj.day}
-                onClick={() => handleDateClick(dayObj)}
-              >
-                {dayObj.day}
-              </CalendarCell>
-            ))}
-          </CalendarCells>
-        </CalendarContent>
-        <input type="hidden" id="datepick_value" value="08.09.2023" />
-        <CalendarPeriod>
-          <CalendarPeriodText>
+        <CalendarPeriod className="calendar__period">
+          <CalendarPeriodText className="calendar__p">
             {selectedDate ? (
               <>
-                Срок исполнения:{" "}
-                <span className="date-control">
-                  {selectedDate.toString().padStart(2, "0")}.
-                  {(currentDate.getMonth() + 1).toString().padStart(2, "0")}.
-                  {currentDate.getFullYear().toString().slice(-2)}
-                </span>
+                Срок исполнения: <span>{formatSelectedDate()}</span>
               </>
             ) : (
               <>
-                Выберите срок исполнения <span className="date-control"></span>.
+                Выберите срок исполнения <span></span>
               </>
             )}
           </CalendarPeriodText>
