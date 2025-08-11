@@ -1,11 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Column from "../Column/Column";
 import Card from "../Card/Card";
 import { cardList } from "../../data";
 import { MainContainer, MainBlock, MainContent } from "./Main.styled";
 import { Container } from "../shared/Shared.styled";
 
-const Main = ({ onOpenPopBrowse }) => {
+const Main = () => {
+  const navigate = useNavigate();
   const columnTitles = [
     "Без статуса",
     "Нужно сделать",
@@ -31,6 +33,11 @@ const Main = ({ onOpenPopBrowse }) => {
     return cardList.filter((card) => card.status === status);
   };
 
+  const handleCardClick = (card) => {
+    console.log("Клик по карточке:", card);
+    navigate(`/card/${card.id}`);
+  };
+
   return (
     <MainContainer>
       <Container>
@@ -45,10 +52,7 @@ const Main = ({ onOpenPopBrowse }) => {
                     themeText={card.topic}
                     title={card.title}
                     date={card.date}
-                    onOpenCard={() => {
-                      console.log("Клик по карточке:", card);
-                      onOpenPopBrowse(card);
-                    }}
+                    onOpenCard={() => handleCardClick(card)}
                   />
                 ))}
               </Column>
