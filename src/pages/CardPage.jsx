@@ -145,7 +145,14 @@ const CardPage = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const foundTask = cardList.find((card) => card.id === parseInt(id));
+    // Проверяем, что ID содержит только цифры
+    if (!/^\d+$/.test(id)) {
+      setError("Некорректный ID задачи");
+      return;
+    }
+
+    const taskId = parseInt(id);
+    const foundTask = cardList.find((card) => card.id === taskId);
     if (foundTask) {
       setTask(foundTask);
     } else {
