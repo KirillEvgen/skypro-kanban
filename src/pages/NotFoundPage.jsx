@@ -55,11 +55,15 @@ const Button = styled.button`
   }
 `;
 
-const NotFoundPage = () => {
+const NotFoundPage = ({ isProtected = false }) => {
   const navigate = useNavigate();
 
   const handleGoHome = () => {
-    navigate("/");
+    if (isProtected) {
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
   };
 
   return (
@@ -71,7 +75,9 @@ const NotFoundPage = () => {
           К сожалению, запрашиваемая страница не существует. Возможно, она была
           удалена или перемещена.
         </Message>
-        <Button onClick={handleGoHome}>Вернуться на главную</Button>
+        <Button onClick={handleGoHome}>
+          {isProtected ? "Вернуться на главную" : "Войти в систему"}
+        </Button>
       </NotFoundCard>
     </NotFoundContainer>
   );

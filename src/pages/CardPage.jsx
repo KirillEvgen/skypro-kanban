@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Navigate } from "react-router-dom";
 import { cardList } from "../data";
 
 const CardContainer = styled.div`
@@ -138,15 +138,6 @@ const Button = styled.button`
   }
 `;
 
-const ErrorMessage = styled.div`
-  color: #dc3545;
-  text-align: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #f8d7da;
-  border-radius: 4px;
-`;
-
 const CardPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -179,16 +170,8 @@ const CardPage = () => {
   };
 
   if (error) {
-    return (
-      <CardContainer>
-        <CardContent>
-          <ErrorMessage>{error}</ErrorMessage>
-          <Button onClick={handleBack} className="secondary">
-            Вернуться на главную
-          </Button>
-        </CardContent>
-      </CardContainer>
-    );
+    // Если задача не найдена, перенаправляем на 404 страницу
+    return <Navigate to="/404" replace />;
   }
 
   if (!task) {

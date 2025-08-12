@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Navigate } from "react-router-dom";
 import { cardList } from "../data";
 
 const EditTaskContainer = styled.div`
@@ -120,15 +120,6 @@ const Button = styled.button`
   }
 `;
 
-const ErrorMessage = styled.div`
-  color: #dc3545;
-  text-align: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #f8d7da;
-  border-radius: 4px;
-`;
-
 const EditTaskPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -186,16 +177,8 @@ const EditTaskPage = () => {
   };
 
   if (error) {
-    return (
-      <EditTaskContainer>
-        <EditTaskForm>
-          <ErrorMessage>{error}</ErrorMessage>
-          <Button onClick={() => navigate("/")} className="secondary">
-            Вернуться на главную
-          </Button>
-        </EditTaskForm>
-      </EditTaskContainer>
-    );
+    // Если задача не найдена, перенаправляем на 404 страницу
+    return <Navigate to="/404" replace />;
   }
 
   if (!task) {

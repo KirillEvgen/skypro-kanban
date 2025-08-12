@@ -10,6 +10,15 @@ import LogoutPage from "../pages/LogoutPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
 
+// Компонент для защищенной 404 страницы
+const ProtectedNotFoundPage = () => {
+  return (
+    <ProtectedRoute>
+      <NotFoundPage isProtected={true} />
+    </ProtectedRoute>
+  );
+};
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -59,7 +68,10 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Страница 404 */}
+      {/* Защищенная страница 404 для авторизованных пользователей */}
+      <Route path="/404" element={<ProtectedNotFoundPage />} />
+
+      {/* Публичная страница 404 для неавторизованных пользователей */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

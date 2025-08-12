@@ -11,12 +11,21 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [isAuth, setIsAuth] = useState(false);
-  const [user, setUser] = useState(null);
+  // Проверяем localStorage при инициализации
+  const [isAuth, setIsAuth] = useState(() => {
+    const savedUser = localStorage.getItem("userData");
+    return !!savedUser;
+  });
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("userData");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   const login = (userData) => {
     setIsAuth(true);
     setUser(userData);
+    // Сохраняем данные пользователя в localStorage
+    localStorage.setItem("userData", JSON.stringify(userData));
   };
 
   const logout = () => {
