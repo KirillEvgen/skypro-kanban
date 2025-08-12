@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   HeaderContainer,
   HeaderBlock,
@@ -14,40 +16,54 @@ import {
 } from "./Header.styled";
 import { Container } from "../shared/Shared.styled";
 
-const Header = ({ onOpenPopUser, onOpenPopNewCard }) => {
+const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Используем данные пользователя из контекста или дефолтные значения
+  const userData = user || {
+    name: "Ivan Ivanov",
+    email: "ivan.ivanov@gmail.com",
+  };
 
   const handleUserClick = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
+  };
+
+  const handleCreateTask = () => {
+    navigate("/add-task");
+  };
+
+  const handleLogout = () => {
+    setIsUserMenuOpen(false);
+    navigate("/exit");
+  };
+
+  const handleLogoClick = () => {
+    navigate("/");
   };
 
   return (
     <HeaderContainer>
       <Container>
         <HeaderBlock>
-          <HeaderLogo>
+          <HeaderLogo onClick={handleLogoClick}>
             <img src="/images/logo.png" alt="logo" />
           </HeaderLogo>
           <HeaderNav>
-            <HeaderBtnMainNew id="btnMainNew" onClick={onOpenPopNewCard}>
+            <HeaderBtnMainNew id="btnMainNew" onClick={handleCreateTask}>
               Создать новую задачу
             </HeaderBtnMainNew>
-            <HeaderUser onClick={handleUserClick}>Ivan Ivanov</HeaderUser>
+            <HeaderUser onClick={handleUserClick}>{user.name}</HeaderUser>
             <HeaderPopUserSet isOpen={isUserMenuOpen}>
-              <PopUserSetName>Ivan Ivanov</PopUserSetName>
-              <PopUserSetMail>ivan.ivanov@gmail.com</PopUserSetMail>
+              <PopUserSetName>{user.name}</PopUserSetName>
+              <PopUserSetMail>{user.email}</PopUserSetMail>
               <PopUserSetTheme>
                 <p>Темная тема</p>
                 <input type="checkbox" name="checkbox" />
               </PopUserSetTheme>
-              <PopUserSetButton
-                onClick={() => {
-                  setIsUserMenuOpen(false);
-                  onOpenPopUser();
-                }}
-              >
-                Выйти
-              </PopUserSetButton>
+              <PopUserSetButton onClick={handleLogout}>Выйти</PopUserSetButton>
             </HeaderPopUserSet>
           </HeaderNav>
         </HeaderBlock>
