@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
-import { cardList } from "../data";
+import { useTasks } from "../contexts/TasksContext";
 
 const ViewTaskContainer = styled.div`
   min-height: 100vh;
@@ -150,17 +150,18 @@ const ErrorMessage = styled.div`
 const ViewTaskPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getTaskById, loading, error } = useTasks();
   const [task, setTask] = useState(null);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    const foundTask = cardList.find((card) => card.id === parseInt(id));
+    const taskId = parseInt(id);
+    const foundTask = getTaskById(taskId);
     if (foundTask) {
       setTask(foundTask);
     } else {
-      setError("Задача не найдена");
+      setTask(null);
     }
-  }, [id]);
+  }, [id, getTaskById]);
 
   const getTopicClass = (topic) => {
     return topic.toLowerCase().replace(" ", "-");
@@ -177,6 +178,16 @@ const ViewTaskPage = () => {
   const handleBack = () => {
     navigate("/");
   };
+
+  if (loading) {
+    return (
+      <ViewTaskContainer>
+        <TaskCard>
+          <div>Загрузка...</div>
+        </TaskCard>
+      </ViewTaskContainer>
+    );
+  }
 
   if (error) {
     return (
@@ -195,7 +206,10 @@ const ViewTaskPage = () => {
     return (
       <ViewTaskContainer>
         <TaskCard>
-          <div>Загрузка...</div>
+          <ErrorMessage>Задача не найдена</ErrorMessage>
+          <Button onClick={handleBack} className="secondary">
+            Вернуться на главную
+          </Button>
         </TaskCard>
       </ViewTaskContainer>
     );

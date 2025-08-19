@@ -2,12 +2,14 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Column from "../Column/Column";
 import Card from "../Card/Card";
-import { cardList } from "../../data";
+import { useTasks } from "../../contexts/TasksContext";
 import { MainContainer, MainBlock, MainContent } from "./Main.styled";
 import { Container } from "../shared/Shared.styled";
 
 const Main = () => {
   const navigate = useNavigate();
+  const { tasks, loading, error, getTasksByStatus } = useTasks();
+
   const columnTitles = [
     "Без статуса",
     "Нужно сделать",
@@ -29,14 +31,44 @@ const Main = () => {
     }
   };
 
-  const getCardsByStatus = (status) => {
-    return cardList.filter((card) => card.status === status);
-  };
-
   const handleCardClick = (card) => {
     console.log("Клик по карточке:", card);
     navigate(`/card/${card.id}`);
   };
+
+  if (loading) {
+    return (
+      <MainContainer>
+        <Container>
+          <MainBlock>
+            <MainContent>
+              <div style={{ textAlign: "center", padding: "50px" }}>
+                Загрузка задач...
+              </div>
+            </MainContent>
+          </MainBlock>
+        </Container>
+      </MainContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainContainer>
+        <Container>
+          <MainBlock>
+            <MainContent>
+              <div
+                style={{ textAlign: "center", padding: "50px", color: "red" }}
+              >
+                Ошибка: {error}
+              </div>
+            </MainContent>
+          </MainBlock>
+        </Container>
+      </MainContainer>
+    );
+  }
 
   return (
     <MainContainer>
@@ -45,7 +77,7 @@ const Main = () => {
           <MainContent>
             {columnTitles.map((title) => (
               <Column key={title} title={title}>
-                {getCardsByStatus(title).map((card) => (
+                {getTasksByStatus(title).map((card) => (
                   <Card
                     key={card.id}
                     themeClass={getThemeClass(card.topic)}

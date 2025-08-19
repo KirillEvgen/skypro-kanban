@@ -65,6 +65,21 @@ const Button = styled.button`
   &:hover {
     background-color: #4a4fd8;
   }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #e74c3c;
+  background-color: #fdf2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
 `;
 
 const LoginLink = styled.p`
@@ -89,8 +104,10 @@ const RegisterPage = () => {
     password: "",
     confirmPassword: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState("");
   const navigate = useNavigate();
-  const { isAuth, login } = useAuth();
+  const { isAuth, register, error, clearError } = useAuth();
 
   // Проверяем, если пользователь уже авторизован, перенаправляем на главную
   useEffect(() => {
@@ -104,36 +121,49 @@ const RegisterPage = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Очищаем ошибки при изменении полей
+    if (error) {
+      clearError();
+    }
+    if (validationError) {
+      setValidationError("");
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Пароли не совпадают");
+      setValidationError("Пароли не совпадают");
       return;
     }
-    // Здесь будет логика регистрации
-    console.log("Регистрация:", formData);
 
-    // Сохраняем данные пользователя через контекст
-    const userData = {
-      email: formData.email,
-      name: formData.name,
-    };
+    if (formData.password.length < 6) {
+      setValidationError("Пароль должен содержать минимум 6 символов");
+      return;
+    }
 
-    // Сохраняем данные пользователя в localStorage
-    localStorage.setItem("userData", JSON.stringify(userData));
+    setIsSubmitting(true);
+    setValidationError("");
 
-    login(userData);
-
-    // После успешной регистрации перенаправляем на главную
-    navigate("/");
+    try {
+      const { name, email, password } = formData;
+      await register({ name, email, password });
+      navigate("/");
+    } catch (err) {
+      console.error("Ошибка регистрации:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <RegisterContainer>
       <RegisterForm onSubmit={handleSubmit}>
         <Title>Регистрация</Title>
+        {(error || validationError) && (
+          <ErrorMessage>{error || validationError}</ErrorMessage>
+        )}
         <FormGroup>
           <Label htmlFor="name">Имя</Label>
           <Input
@@ -143,6 +173,7 @@ const RegisterPage = () => {
             value={formData.name}
             onChange={handleChange}
             required
+            disabled={isSubmitting}
           />
         </FormGroup>
         <FormGroup>
@@ -154,6 +185,7 @@ const RegisterPage = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            disabled={isSubmitting}
           />
         </FormGroup>
         <FormGroup>
@@ -165,6 +197,7 @@ const RegisterPage = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            disabled={isSubmitting}
           />
         </FormGroup>
         <FormGroup>
@@ -173,12 +206,15 @@ const RegisterPage = () => {
             type="password"
             id="confirmPassword"
             name="confirmPassword"
-            value={formData.confirmPassword}
+            value={formData.password}
             onChange={handleChange}
             required
+            disabled={isSubmitting}
           />
         </FormGroup>
-        <Button type="submit">Зарегистрироваться</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Регистрация..." : "Зарегистрироваться"}
+        </Button>
         <LoginLink>
           Уже есть аккаунт? <Link to="/login">Войти</Link>
         </LoginLink>

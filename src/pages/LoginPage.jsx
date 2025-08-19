@@ -65,6 +65,21 @@ const Button = styled.button`
   &:hover {
     background-color: #4a4fd8;
   }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #e74c3c;
+  background-color: #fdf2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
 `;
 
 const RegisterLink = styled.p`
@@ -87,8 +102,9 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { isAuth, login } = useAuth();
+  const { isAuth, login, error, clearError } = useAuth();
 
   // Проверяем, если пользователь уже авторизован, перенаправляем на главную
   useEffect(() => {
@@ -102,40 +118,31 @@ const LoginPage = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Очищаем ошибку при изменении полей
+    if (error) {
+      clearError();
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Здесь будет логика входа
-    console.log("Вход:", formData);
+    setIsSubmitting(true);
 
-    // Проверяем, есть ли сохраненные данные пользователя
-    const savedUserData = localStorage.getItem("userData");
-    let userData;
-
-    if (savedUserData) {
-      // Если есть сохраненные данные, используем их
-      userData = JSON.parse(savedUserData);
-    } else {
-      // Если нет сохраненных данных, создаем новые
-      userData = {
-        email: formData.email,
-        name: formData.email.split("@")[0], // Используем часть email как имя
-      };
-      // Сохраняем новые данные в localStorage
-      localStorage.setItem("userData", JSON.stringify(userData));
+    try {
+      await login(formData);
+      navigate("/");
+    } catch (err) {
+      console.error("Ошибка входа:", err);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    login(userData);
-
-    // После успешного входа перенаправляем на главную
-    navigate("/");
   };
 
   return (
     <LoginContainer>
       <LoginForm onSubmit={handleSubmit}>
         <Title>Вход в систему</Title>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         <FormGroup>
           <Label htmlFor="email">Email</Label>
           <Input
@@ -145,6 +152,7 @@ const LoginPage = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            disabled={isSubmitting}
           />
         </FormGroup>
         <FormGroup>
@@ -156,9 +164,12 @@ const LoginPage = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            disabled={isSubmitting}
           />
         </FormGroup>
-        <Button type="submit">Войти</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Вход..." : "Войти"}
+        </Button>
         <RegisterLink>
           Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
         </RegisterLink>
