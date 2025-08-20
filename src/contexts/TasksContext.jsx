@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { tasksAPI } from "../services/api";
+import { useAuth } from "./AuthContext";
 
 const TasksContext = createContext();
 
@@ -15,11 +16,14 @@ export const TasksProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { isAuth } = useAuth();
 
-  // Загрузка задач при инициализации
+  // Загрузка задач при инициализации только если пользователь авторизован
   useEffect(() => {
-    loadTasks();
-  }, []);
+    if (isAuth) {
+      loadTasks();
+    }
+  }, [isAuth]);
 
   const loadTasks = async () => {
     setLoading(true);

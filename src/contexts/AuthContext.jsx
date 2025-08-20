@@ -27,7 +27,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const checkAuth = async () => {
+  // Мемоизируем функцию checkAuth, чтобы избежать лишних ререндеров
+  const checkAuth = React.useCallback(async () => {
     try {
       const userData = await authAPI.getProfile();
       setUser(userData);
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const login = async (credentials) => {
     setLoading(true);

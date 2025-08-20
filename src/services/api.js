@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Базовый URL API (замените на ваш реальный URL)
-const API_BASE_URL = "https://skypro-kanban.onrender.com";
+// Базовый URL API
+const API_BASE_URL = "https://wedev-api.sky.pro/api/kanban";
 
 // Создаем экземпляр axios с базовой конфигурацией
 const api = axios.create({

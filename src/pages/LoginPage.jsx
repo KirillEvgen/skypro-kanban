@@ -109,7 +109,7 @@ const LoginPage = () => {
   // Проверяем, если пользователь уже авторизован, перенаправляем на главную
   useEffect(() => {
     if (isAuth) {
-      navigate("/");
+      navigate("/", { replace: true });
     }
   }, [isAuth, navigate]);
 
