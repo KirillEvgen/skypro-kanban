@@ -57,9 +57,23 @@ export const AuthProvider = ({ children }) => {
 
       setUser(userData);
       setIsAuth(true);
+      // Отправляем событие для синхронизации с TasksContext
+      window.dispatchEvent(
+        new CustomEvent("authStateChanged", { detail: { isAuth: true } })
+      );
       return response;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Ошибка входа";
+      console.error("Ошибка в login:", err);
+      let errorMessage = "Ошибка входа";
+
+      if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -80,9 +94,23 @@ export const AuthProvider = ({ children }) => {
 
       setUser(newUser);
       setIsAuth(true);
+      // Отправляем событие для синхронизации с TasksContext
+      window.dispatchEvent(
+        new CustomEvent("authStateChanged", { detail: { isAuth: true } })
+      );
       return response;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Ошибка регистрации";
+      console.error("Ошибка в register:", err);
+      let errorMessage = "Ошибка регистрации";
+
+      if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -97,6 +125,10 @@ export const AuthProvider = ({ children }) => {
     // Очищаем данные пользователя из localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
+    // Отправляем событие для синхронизации с TasksContext
+    window.dispatchEvent(
+      new CustomEvent("authStateChanged", { detail: { isAuth: false } })
+    );
   };
 
   const clearError = () => {

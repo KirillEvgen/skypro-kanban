@@ -111,10 +111,10 @@ const RegisterPage = () => {
 
   // Проверяем, если пользователь уже авторизован, перенаправляем на главную
   useEffect(() => {
-    if (isAuth) {
-      navigate("/");
+    if (isAuth && !isSubmitting) {
+      navigate("/", { replace: true });
     }
-  }, [isAuth, navigate]);
+  }, [isAuth, navigate, isSubmitting]);
 
   const handleChange = (e) => {
     setFormData({
@@ -149,7 +149,9 @@ const RegisterPage = () => {
     try {
       const { name, email, password } = formData;
       await register({ name, email, password });
-      navigate("/");
+      // После успешной регистрации пользователь автоматически авторизован
+      // Перенаправляем на главную страницу
+      navigate("/", { replace: true });
     } catch (err) {
       console.error("Ошибка регистрации:", err);
     } finally {
@@ -206,7 +208,7 @@ const RegisterPage = () => {
             type="password"
             id="confirmPassword"
             name="confirmPassword"
-            value={formData.password}
+            value={formData.confirmPassword}
             onChange={handleChange}
             required
             disabled={isSubmitting}

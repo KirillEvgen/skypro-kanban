@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { tasksAPI } from "../services/api";
-import { useAuth } from "./AuthContext";
 
 const TasksContext = createContext();
 
@@ -16,14 +15,44 @@ export const TasksProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { isAuth } = useAuth();
 
-  // Загрузка задач при инициализации только если пользователь авторизован
+  // Загрузка задач при инициализации
   useEffect(() => {
-    if (isAuth) {
+    // Проверяем наличие токена для определения авторизации
+    const token = localStorage.getItem("token");
+    if (token) {
       loadTasks();
     }
-  }, [isAuth]);
+  }, []);
+
+  // Слушаем изменения в localStorage и кастомные события для синхронизации с AuthContext
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "token") {
+        if (e.newValue) {
+          loadTasks();
+        } else {
+          setTasks([]);
+        }
+      }
+    };
+
+    const handleAuthStateChange = (e) => {
+      if (e.detail.isAuth) {
+        loadTasks();
+      } else {
+        setTasks([]);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authStateChanged", handleAuthStateChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authStateChanged", handleAuthStateChange);
+    };
+  }, []);
 
   const loadTasks = async () => {
     setLoading(true);

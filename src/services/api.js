@@ -3,7 +3,12 @@ import axios from "axios";
 // Базовый URL API
 const API_BASE_URL = "https://wedev-api.sky.pro/api/kanban";
 
-// Создаем экземпляр axios с базовой конфигурацией
+// Создаем экземпляр axios для аутентификации (без заголовков)
+const authApi = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+// Создаем экземпляр axios с базовой конфигурацией для защищенных запросов
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -11,7 +16,7 @@ const api = axios.create({
   },
 });
 
-// Интерцептор для добавления токена к запросам
+// Интерцептор для добавления токена к защищенным запросам
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -25,15 +30,15 @@ api.interceptors.request.use(
   }
 );
 
-// Интерцептор для обработки ошибок
+// Интерцептор для обработки ошибок защищенных запросов
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Если токен истек, очищаем localStorage и перенаправляем на логин
+      // Если токен истек, очищаем localStorage
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
-      window.location.href = "/login";
+      // Не перенаправляем автоматически, пусть компоненты сами решают
     }
     return Promise.reject(error);
   }
@@ -43,14 +48,54 @@ api.interceptors.response.use(
 export const authAPI = {
   // Регистрация
   register: async (userData) => {
-    const response = await api.post("/register", userData);
-    return response.data;
+    try {
+      console.log("Отправляем данные для регистрации:", userData);
+
+      // Отправляем данные как FormData (без Content-Type заголовка)
+      const formData = new FormData();
+      formData.append("name", userData.name);
+      formData.append("email", userData.email);
+      formData.append("password", userData.password);
+      // Попробуем добавить дополнительные поля, которые могут потребоваться
+      formData.append("confirmPassword", userData.password);
+
+      console.log("FormData содержимое:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      const response = await authApi.post("/register", formData);
+      console.log("Успешная регистрация:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Ошибка регистрации:", error);
+      console.error("Статус:", error.response?.status);
+      console.error("Данные ответа:", error.response?.data);
+      console.error("Заголовки ответа:", error.response?.headers);
+      throw error;
+    }
   },
 
   // Вход
   login: async (credentials) => {
-    const response = await api.post("/login", credentials);
-    return response.data;
+    try {
+      console.log("Отправляем данные для входа:", credentials);
+
+      // Отправляем данные как FormData (без Content-Type заголовка)
+      const formData = new FormData();
+      formData.append("email", credentials.email);
+      formData.append("password", credentials.password);
+
+      const response = await authApi.post("/login", formData);
+      console.log("Успешный вход:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Ошибка входа:", error);
+      console.error("Статус:", error.response?.status);
+      console.error("Данные ответа:", error.response?.data);
+      console.error("Заголовки ответа:", error.response?.headers);
+      throw error;
+    }
   },
 
   // Получение профиля пользователя

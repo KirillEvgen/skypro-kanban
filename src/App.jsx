@@ -5,6 +5,7 @@ import AppRoutes from "./components/AppRoutes";
 import { AuthProvider } from "./contexts/AuthContext";
 import { TasksProvider } from "./contexts/TasksContext";
 import ErrorBoundary from "./components/ErrorBoundary";
+import AuthWrapper from "./components/AuthWrapper";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -69,18 +70,20 @@ const theme = {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <Router>
         <AuthProvider>
-          <TasksProvider>
-            <Router>
-              <AppRoutes />
-            </Router>
-          </TasksProvider>
+          <AuthWrapper>
+            <ErrorBoundary>
+              <TasksProvider>
+                <AppRoutes />
+              </TasksProvider>
+            </ErrorBoundary>
+          </AuthWrapper>
         </AuthProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+      </Router>
+    </ThemeProvider>
   );
 }
 
