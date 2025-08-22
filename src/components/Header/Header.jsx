@@ -55,10 +55,10 @@ const Header = () => {
             <HeaderBtnMainNew id="btnMainNew" onClick={handleCreateTask}>
               Создать новую задачу
             </HeaderBtnMainNew>
-            <HeaderUser onClick={handleUserClick}>{user.name}</HeaderUser>
-            <HeaderPopUserSet isOpen={isUserMenuOpen}>
-              <PopUserSetName>{user.name}</PopUserSetName>
-              <PopUserSetMail>{user.email}</PopUserSetMail>
+            <HeaderUser onClick={handleUserClick}>{userData.name}</HeaderUser>
+            <HeaderPopUserSet $isOpen={isUserMenuOpen}>
+              <PopUserSetName>{userData.name}</PopUserSetName>
+              <PopUserSetMail>{userData.email}</PopUserSetMail>
               <PopUserSetTheme>
                 <p>Темная тема</p>
                 <input type="checkbox" name="checkbox" />

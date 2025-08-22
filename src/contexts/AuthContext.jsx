@@ -49,11 +49,32 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authAPI.login(credentials);
-      const { token, user: userData } = response;
+      console.log("Ответ от API в AuthContext:", response);
+      console.log("Тип ответа:", typeof response);
+      console.log("Ключи ответа:", Object.keys(response));
+      console.log("Полный объект response:", JSON.stringify(response, null, 2));
+
+      // Токен находится внутри user объекта
+      const token = response.user.token;
+      const userData = response.user;
+      console.log("Извлеченный токен:", token);
+      console.log("Извлеченные данные пользователя:", userData);
+
+      // Проверяем наличие токена
+      if (!token) {
+        console.error("Токен не найден в ответе AuthContext!");
+        console.error("Полный ответ:", response);
+        throw new Error("Токен не получен");
+      }
 
       // Сохраняем токен и данные пользователя
       localStorage.setItem("token", token);
       localStorage.setItem("userData", JSON.stringify(userData));
+
+      // Проверяем, что токен сохранился
+      const savedToken = localStorage.getItem("token");
+      console.log("Токен сохранен в localStorage:", savedToken);
+      console.log("Токен совпадает с извлеченным:", savedToken === token);
 
       setUser(userData);
       setIsAuth(true);
@@ -86,7 +107,9 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authAPI.register(userData);
-      const { token, user: newUser } = response;
+      // Токен находится внутри user объекта
+      const token = response.user.token;
+      const newUser = response.user;
 
       // Сохраняем токен и данные пользователя
       localStorage.setItem("token", token);

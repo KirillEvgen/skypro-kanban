@@ -58,10 +58,13 @@ export const TasksProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
+      console.log("Начинаем загрузку задач...");
       const data = await tasksAPI.getTasks();
+      console.log("Полученные задачи:", data);
       setTasks(data);
     } catch (err) {
-      setError(err.response?.data?.message || "Ошибка при загрузке задач");
+      const errorMessage = err.message || "Ошибка при загрузке задач";
+      setError(errorMessage);
       console.error("Ошибка загрузки задач:", err);
     } finally {
       setLoading(false);
@@ -125,7 +128,9 @@ export const TasksProvider = ({ children }) => {
   };
 
   const getTasksByStatus = (status) => {
-    return tasks.filter((task) => task.status === status);
+    const filteredTasks = tasks.filter((task) => task.status === status);
+    console.log(`Фильтрация задач по статусу "${status}":`, filteredTasks);
+    return filteredTasks;
   };
 
   const clearError = () => {

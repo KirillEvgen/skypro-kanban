@@ -70,25 +70,58 @@ const Main = () => {
     );
   }
 
+  // Отладочная информация
+  console.log("Всего задач:", tasks.length);
+  console.log("Задачи:", tasks);
+
+  // Показываем все уникальные статусы
+  const uniqueStatuses = [...new Set(tasks.map((task) => task.status))];
+  console.log("Уникальные статусы в задачах:", uniqueStatuses);
+
   return (
     <MainContainer>
       <Container>
         <MainBlock>
           <MainContent>
-            {columnTitles.map((title) => (
-              <Column key={title} title={title}>
-                {getTasksByStatus(title).map((card) => (
-                  <Card
-                    key={card.id}
-                    themeClass={getThemeClass(card.topic)}
-                    themeText={card.topic}
-                    title={card.title}
-                    date={card.date}
-                    onOpenCard={() => handleCardClick(card)}
-                  />
-                ))}
-              </Column>
-            ))}
+            {tasks.length === 0 ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "50px",
+                  color: "#666",
+                  gridColumn: "1 / -1",
+                }}
+              >
+                <h3>Нет задач</h3>
+                <p>
+                  Создайте первую задачу, нажав кнопку "Создать новую задачу" в
+                  заголовке
+                </p>
+              </div>
+            ) : (
+              columnTitles.map((title) => {
+                const tasksInColumn = getTasksByStatus(title);
+                console.log(
+                  `Колонка "${title}":`,
+                  tasksInColumn.length,
+                  "задач"
+                );
+                return (
+                  <Column key={title} title={title}>
+                    {tasksInColumn.map((card) => (
+                      <Card
+                        key={card.id}
+                        themeClass={getThemeClass(card.topic)}
+                        themeText={card.topic}
+                        title={card.title}
+                        date={card.date}
+                        onOpenCard={() => handleCardClick(card)}
+                      />
+                    ))}
+                  </Column>
+                );
+              })
+            )}
           </MainContent>
         </MainBlock>
       </Container>
