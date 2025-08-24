@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
-import { cardList } from "../data";
+import { useTasks } from "../contexts/TasksContext";
 
 const CardContainer = styled.div`
   min-height: 100vh;
@@ -141,24 +141,20 @@ const Button = styled.button`
 const CardPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getTaskById } = useTasks();
   const [task, setTask] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Проверяем, что ID содержит только цифры
-    if (!/^\d+$/.test(id)) {
-      setError("Некорректный ID задачи");
-      return;
-    }
+    console.log("CardPage получил ID:", id, "тип:", typeof id);
 
-    const taskId = parseInt(id);
-    const foundTask = cardList.find((card) => card.id === taskId);
+    const foundTask = getTaskById(id);
     if (foundTask) {
       setTask(foundTask);
     } else {
       setError("Задача не найдена");
     }
-  }, [id]);
+  }, [id, getTaskById]);
 
   const getTopicClass = (topic) => {
     return topic.toLowerCase().replace(" ", "-");
@@ -166,6 +162,27 @@ const CardPage = () => {
 
   const getStatusClass = (status) => {
     return status.toLowerCase().replace(" ", "-");
+  };
+
+  // Функция для форматирования даты
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
+
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear().toString().slice(-2);
+
+      return `${day}.${month}.${year}`;
+    } catch (error) {
+      console.error("Ошибка форматирования даты:", error);
+      return dateString;
+    }
   };
 
   const handleEdit = () => {
@@ -198,7 +215,7 @@ const CardPage = () => {
 
         <CardInfo>
           <Label>ID задачи</Label>
-          <Value>{task.id}</Value>
+          <Value>{task._id || task.id}</Value>
         </CardInfo>
 
         <CardInfo>
@@ -231,7 +248,7 @@ const CardPage = () => {
 
         <CardInfo>
           <Label>Дата</Label>
-          <Value>{task.date}</Value>
+          <Value>{formatDate(task.date)}</Value>
         </CardInfo>
 
         <ButtonGroup>

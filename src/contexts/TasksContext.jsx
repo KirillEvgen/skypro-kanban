@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { tasksAPI } from "../services/api";
+import { cardList } from "../data";
 
 const TasksContext = createContext();
 
@@ -61,13 +62,70 @@ export const TasksProvider = ({ children }) => {
       console.log("Начинаем загрузку задач...");
       const data = await tasksAPI.getTasks();
       console.log("Полученные задачи:", data);
-      setTasks(data);
+      console.log("Тип полученных данных:", typeof data);
+      console.log("Является ли массивом:", Array.isArray(data));
+
+      // Убеждаемся, что мы всегда работаем с массивом
+      let tasksArray = [];
+      if (Array.isArray(data)) {
+        tasksArray = data;
+      } else if (data && data.tasks && Array.isArray(data.tasks)) {
+        tasksArray = data.tasks;
+      } else {
+        console.warn(
+          "Неожиданная структура данных, устанавливаем пустой массив"
+        );
+        tasksArray = [];
+      }
+
+      // Если задач нет, создаем тестовые задачи
+      if (tasksArray.length === 0) {
+        console.log("Задач нет, создаем тестовые данные...");
+        await createTestTasks();
+      } else {
+        setTasks(tasksArray);
+      }
     } catch (err) {
       const errorMessage = err.message || "Ошибка при загрузке задач";
       setError(errorMessage);
       console.error("Ошибка загрузки задач:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createTestTasks = async () => {
+    try {
+      console.log("Создаем тестовые задачи...");
+      const createdTasks = [];
+
+      for (const taskData of cardList) {
+        try {
+          // Преобразуем дату в правильный формат
+          const dateParts = taskData.date.split(".");
+          const year =
+            dateParts[2].length === 2 ? `20${dateParts[2]}` : dateParts[2];
+          const formattedDate = `${year}-${dateParts[1].padStart(2, "0")}-${dateParts[0].padStart(2, "0")}`;
+
+          const newTask = await tasksAPI.createTask({
+            title: taskData.title,
+            description: taskData.description,
+            topic: taskData.topic,
+            status: taskData.status,
+            date: formattedDate,
+          });
+          createdTasks.push(newTask);
+          console.log("Создана задача:", newTask);
+        } catch (error) {
+          console.error("Ошибка создания задачи:", taskData.title, error);
+        }
+      }
+
+      console.log("Всего создано тестовых задач:", createdTasks.length);
+      setTasks(createdTasks);
+    } catch (error) {
+      console.error("Ошибка создания тестовых задач:", error);
+      setError("Ошибка создания тестовых задач");
     }
   };
 
@@ -124,12 +182,30 @@ export const TasksProvider = ({ children }) => {
   };
 
   const getTaskById = (id) => {
-    return tasks.find((task) => task.id === id);
+    console.log("Поиск задачи по ID:", id, "тип:", typeof id);
+    console.log("Все задачи:", tasks);
+
+    // Ищем по _id (строка) или id (число)
+    const foundTask = tasks.find((task) => {
+      console.log("Проверяем задачу:", task);
+      console.log("task._id:", task._id, "task.id:", task.id);
+      return task._id === id || task.id === id || task.id === parseInt(id);
+    });
+
+    console.log("Найденная задача:", foundTask);
+    return foundTask;
   };
 
   const getTasksByStatus = (status) => {
+    console.log(`Фильтрация задач по статусу "${status}"`);
+    console.log("Все задачи для фильтрации:", tasks);
+    console.log(
+      "Статусы всех задач:",
+      tasks.map((task) => task.status)
+    );
+
     const filteredTasks = tasks.filter((task) => task.status === status);
-    console.log(`Фильтрация задач по статусу "${status}":`, filteredTasks);
+    console.log(`Результат фильтрации для "${status}":`, filteredTasks);
     return filteredTasks;
   };
 

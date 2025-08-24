@@ -1,18 +1,13 @@
 import axios from "axios";
 
-// Базовый URL API
+// Базовый URL API - используем правильный адрес
 const API_BASE_URL = "https://wedev-api.sky.pro/api";
-
-// Создаем экземпляр axios для аутентификации (без заголовков)
-// const authApi = axios.create({
-//   baseURL: API_BASE_URL,
-// });
 
 // Создаем экземпляр axios с базовой конфигурацией для защищенных запросов
 const api = axios.create({
-  baseURL: "https://wedev-api.sky.pro/api/kanban",
+  baseURL: `${API_BASE_URL}/kanban`,
   headers: {
-    "Content-Type": "",
+    "Content-Type": "application/json",
   },
 });
 
@@ -21,9 +16,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Пробуем разные форматы заголовка авторизации
       config.headers.Authorization = `Bearer ${token}`;
-      // config.headers["X-Auth-Token"] = token;
       console.log("Отправляем токен:", token);
       console.log("Заголовки запроса:", config.headers);
     } else {
@@ -57,7 +50,6 @@ export const authAPI = {
     try {
       console.log("Отправляем данные для регистрации:", userData);
 
-      // Отправляем JSON данные без Content-Type заголовка
       const requestData = {
         login: userData.email, // используем email как login
         name: userData.name,
@@ -90,7 +82,6 @@ export const authAPI = {
     try {
       console.log("Отправляем данные для входа:", credentials);
 
-      // Отправляем JSON данные без Content-Type заголовка
       const requestData = {
         login: credentials.email, // используем email как login
         password: credentials.password,
@@ -132,17 +123,15 @@ export const authAPI = {
   // Получение профиля пользователя
   getProfile: async () => {
     try {
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
-        throw new Error("Данные пользователя не найдены");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Токен не найден");
       }
-      const user = JSON.parse(userData);
-      const userId = user._id;
 
       const response = await fetch(`${API_BASE_URL}/kanban/profile`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${userId}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -166,30 +155,22 @@ export const tasksAPI = {
   getTasks: async () => {
     try {
       console.log("Запрашиваем задачи...");
-      const userData = localStorage.getItem("userData");
-      console.log("Данные пользователя из localStorage:", userData);
+      const token = localStorage.getItem("token");
+      console.log("Токен из localStorage:", token);
 
-      if (!userData) {
-        throw new Error("Данные пользователя не найдены");
+      if (!token) {
+        throw new Error("Токен не найден");
       }
-      const user = JSON.parse(userData);
-      const userId = user._id;
-      console.log("ID пользователя:", userId);
 
-      console.log("Отправляем запрос с ID пользователя:", userId);
-      console.log("Заголовки запроса:", {
-        Authorization: `Bearer ${userId}`,
+      console.log("Отправляем запрос с токеном:", token);
+      console.log("URL запроса:", `${API_BASE_URL}/kanban`);
+
+      const response = await fetch(`${API_BASE_URL}/kanban`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-
-      const response = await fetch(
-        "https://wedev-api.sky.pro/api/kanban/tasks",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${userId}`,
-          },
-        }
-      );
 
       console.log("Статус ответа задач:", response.status);
 
@@ -201,7 +182,21 @@ export const tasksAPI = {
 
       const data = await response.json();
       console.log("Ответ от API задач:", data);
-      return data;
+      console.log("Тип данных:", typeof data);
+      console.log("Ключи данных:", Object.keys(data));
+      console.log("Структура данных:", JSON.stringify(data, null, 2));
+
+      // Проверяем, есть ли массив задач в ответе
+      if (data && data.tasks && Array.isArray(data.tasks)) {
+        console.log("Найден массив задач в data.tasks:", data.tasks);
+        return data.tasks;
+      } else if (Array.isArray(data)) {
+        console.log("Данные уже являются массивом:", data);
+        return data;
+      } else {
+        console.log("Неожиданная структура данных, возвращаем пустой массив");
+        return [];
+      }
     } catch (error) {
       console.error("Ошибка получения задач:", error);
       throw error;
@@ -211,17 +206,15 @@ export const tasksAPI = {
   // Получение задачи по ID
   getTask: async (id) => {
     try {
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
-        throw new Error("Данные пользователя не найдены");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Токен не найден");
       }
-      const user = JSON.parse(userData);
-      const userId = user._id;
 
-      const response = await fetch(`${API_BASE_URL}/kanban/tasks/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/kanban/${id}`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${userId}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -241,17 +234,15 @@ export const tasksAPI = {
   // Создание новой задачи
   createTask: async (taskData) => {
     try {
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
-        throw new Error("Данные пользователя не найдены");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Токен не найден");
       }
-      const user = JSON.parse(userData);
-      const userId = user._id;
 
-      const response = await fetch(`${API_BASE_URL}/kanban/tasks`, {
+      const response = await fetch(`${API_BASE_URL}/kanban`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${userId}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(taskData),
       });
@@ -272,17 +263,15 @@ export const tasksAPI = {
   // Обновление задачи
   updateTask: async (id, taskData) => {
     try {
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
-        throw new Error("Данные пользователя не найдены");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Токен не найден");
       }
-      const user = JSON.parse(userData);
-      const userId = user._id;
 
-      const response = await fetch(`${API_BASE_URL}/kanban/tasks/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/kanban/${id}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${userId}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(taskData),
       });
@@ -303,17 +292,15 @@ export const tasksAPI = {
   // Удаление задачи
   deleteTask: async (id) => {
     try {
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
-        throw new Error("Данные пользователя не найдены");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Токен не найден");
       }
-      const user = JSON.parse(userData);
-      const userId = user._id;
 
-      const response = await fetch(`${API_BASE_URL}/kanban/tasks/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/kanban/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${userId}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
