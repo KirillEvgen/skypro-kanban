@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
-import { cardList } from "../data";
+import { useTasks } from "../contexts/TasksContext";
 
 const EditTaskContainer = styled.div`
   min-height: 100vh;
@@ -123,6 +123,8 @@ const Button = styled.button`
 const EditTaskPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getTaskById, updateTask, deleteTask, loading, error, loadTasks } =
+    useTasks();
   const [task, setTask] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -131,18 +133,23 @@ const EditTaskPage = () => {
     status: "",
     date: "",
   });
-  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Проверяем, что ID содержит только цифры
-    if (!/^\d+$/.test(id)) {
-      setError("Некорректный ID задачи");
+    console.log("EditTaskPage получил ID:", id, "тип:", typeof id);
+    console.log("Состояние загрузки:", loading);
+
+    // Если задачи еще загружаются, ждем
+    if (loading) {
+      console.log("Задачи загружаются, ждем...");
       return;
     }
 
-    const taskId = parseInt(id);
-    const foundTask = cardList.find((card) => card.id === taskId);
+    const foundTask = getTaskById(id);
+    console.log("Найденная задача:", foundTask);
+
     if (foundTask) {
+      console.log("Устанавливаем данные задачи:", foundTask);
       setTask(foundTask);
       setFormData({
         title: foundTask.title,
@@ -152,9 +159,27 @@ const EditTaskPage = () => {
         date: foundTask.date,
       });
     } else {
-      setError("Задача не найдена");
+      console.log("Задача не найдена, попробуем перезагрузить задачи...");
+      // Попробуем перезагрузить задачи
+      loadTasks().then(() => {
+        const retryTask = getTaskById(id);
+        if (retryTask) {
+          console.log("Задача найдена после перезагрузки:", retryTask);
+          setTask(retryTask);
+          setFormData({
+            title: retryTask.title,
+            description: retryTask.description,
+            topic: retryTask.topic,
+            status: retryTask.status,
+            date: retryTask.date,
+          });
+        } else {
+          console.log("Задача не найдена даже после перезагрузки");
+          setTask(null);
+        }
+      });
     }
-  }, [id]);
+  }, [id, getTaskById, loading, loadTasks]);
 
   const handleChange = (e) => {
     setFormData({
@@ -163,32 +188,39 @@ const EditTaskPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Здесь будет логика обновления задачи
-    console.log("Обновленная задача:", { id, ...formData });
-    // После обновления перенаправляем на главную
-    navigate("/");
+    setIsSubmitting(true);
+
+    try {
+      await updateTask(id, formData);
+      navigate("/");
+    } catch (err) {
+      console.error("Ошибка обновления задачи:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
     navigate("/");
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm("Вы уверены, что хотите удалить эту задачу?")) {
-      // Здесь будет логика удаления задачи
-      console.log("Удаление задачи:", id);
-      navigate("/");
+      setIsSubmitting(true);
+      try {
+        await deleteTask(id);
+        navigate("/");
+      } catch (err) {
+        console.error("Ошибка удаления задачи:", err);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
-  if (error) {
-    // Если задача не найдена, перенаправляем на 404 страницу
-    return <Navigate to="/404" replace />;
-  }
-
-  if (!task) {
+  if (loading) {
     return (
       <EditTaskContainer>
         <EditTaskForm>
@@ -196,6 +228,23 @@ const EditTaskPage = () => {
         </EditTaskForm>
       </EditTaskContainer>
     );
+  }
+
+  if (error) {
+    return (
+      <EditTaskContainer>
+        <EditTaskForm>
+          <div style={{ color: "red", marginBottom: "20px" }}>{error}</div>
+          <Button onClick={handleCancel} className="secondary">
+            Назад
+          </Button>
+        </EditTaskForm>
+      </EditTaskContainer>
+    );
+  }
+
+  if (!task) {
+    return <Navigate to="/404" replace />;
   }
 
   return (
@@ -263,14 +312,24 @@ const EditTaskPage = () => {
           />
         </FormGroup>
         <ButtonGroup>
-          <Button type="button" className="danger" onClick={handleDelete}>
-            Удалить
+          <Button
+            type="button"
+            className="danger"
+            onClick={handleDelete}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Удаление..." : "Удалить"}
           </Button>
-          <Button type="button" className="secondary" onClick={handleCancel}>
+          <Button
+            type="button"
+            className="secondary"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+          >
             Отмена
           </Button>
-          <Button type="submit" className="primary">
-            Сохранить изменения
+          <Button type="submit" className="primary" disabled={isSubmitting}>
+            {isSubmitting ? "Сохранение..." : "Сохранить изменения"}
           </Button>
         </ButtonGroup>
       </EditTaskForm>

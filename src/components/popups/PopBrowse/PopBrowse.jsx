@@ -1,13 +1,72 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Calendar from "../../Calendar/Calendar";
 
-const PopBrowse = ({ isOpen, card, onClose }) => {
+const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
   console.log("PopBrowse получил props:", { isOpen, card });
-  if (!isOpen || !card) return null;
+
+  // Перемещаем условный рендеринг в самое начало, до всех вызовов хуков
+  if (!isOpen || !card) {
+    return null;
+  }
+
+  // Дополнительная проверка на существование необходимых полей
+  if (!card.title || !card.topic) {
+    console.error("Карточка не содержит необходимых данных:", card);
+    return null;
+  }
+
+  // Обработка клавиши Escape
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
+    }
+  }, [isOpen, onClose]);
+
+  // Функция для форматирования даты
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
+
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear().toString().slice(-2);
+
+      return `${day}.${month}.${year}`;
+    } catch (error) {
+      console.error("Ошибка форматирования даты:", error);
+      return dateString;
+    }
+  };
+
+  const handleEdit = () => {
+    onEdit(card);
+  };
+
+  const handleDelete = () => {
+    onDelete(card);
+  };
+
+  const handleContainerClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
     <div className="pop-browse" style={{ display: isOpen ? "block" : "none" }}>
-      <div className="pop-browse__container">
+      <div className="pop-browse__container" onClick={handleContainerClick}>
         <div className="pop-browse__block">
           <div className="pop-browse__content">
             <div className="pop-browse__top-block">
@@ -21,7 +80,7 @@ const PopBrowse = ({ isOpen, card, onClose }) => {
               <p className="status__p subttl">Статус</p>
               <div className="status__themes">
                 <div className="status__theme _gray">
-                  <p className="_gray">Нужно сделать</p>
+                  <p className="_gray">{card.status}</p>
                 </div>
               </div>
             </div>
@@ -40,7 +99,7 @@ const PopBrowse = ({ isOpen, card, onClose }) => {
                   />
                 </div>
               </form>
-              <Calendar current={true} active={true} />
+              <Calendar current={true} active={card.date} />
             </div>
 
             <div className="theme-down__categories theme-down">
@@ -52,10 +111,16 @@ const PopBrowse = ({ isOpen, card, onClose }) => {
 
             <div className="pop-browse__btn-browse">
               <div className="btn-group">
-                <button className="btn-browse__edit _btn-bor _hover03">
+                <button
+                  className="btn-browse__edit _btn-bor _hover03"
+                  onClick={handleEdit}
+                >
                   Редактировать задачу
                 </button>
-                <button className="btn-browse__delete _btn-bor _hover03">
+                <button
+                  className="btn-browse__delete _btn-bor _hover03"
+                  onClick={handleDelete}
+                >
                   Удалить задачу
                 </button>
               </div>

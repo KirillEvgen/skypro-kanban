@@ -2,20 +2,39 @@ import React, { useState, useEffect } from "react";
 import Calendar from "../../Calendar/Calendar";
 import { useTasks } from "../../../contexts/TasksContext";
 
-const PopNewCard = ({ isOpen, onClose }) => {
+const PopEditCard = ({ isOpen, card, onClose }) => {
   // Перемещаем условный рендеринг в самое начало, до всех вызовов хуков
-  if (!isOpen) {
+  if (!isOpen || !card) {
     return null;
   }
 
-  const { createTask } = useTasks();
+  const { updateTask } = useTasks();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     topic: "Web Design",
+    status: "Без статуса",
     date: new Date().toISOString().split("T")[0],
   });
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Инициализация формы при открытии модального окна
+  useEffect(() => {
+    if (isOpen && card) {
+      // isOpen и card уже проверены выше, но оставляем для безопасности
+      setFormData({
+        title: card.title || "",
+        description: card.description || "",
+        topic: card.topic || "Web Design",
+        status: card.status || "Без статуса",
+        date: card.date
+          ? new Date(card.date).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
+      });
+      setSelectedDate(card.date ? new Date(card.date) : new Date());
+    }
+  }, [isOpen, card]);
 
   // Обработка клавиши Escape
   useEffect(() => {
@@ -26,6 +45,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
     };
 
     if (isOpen) {
+      // isOpen уже проверен выше
       document.addEventListener("keydown", handleEscape);
       return () => document.removeEventListener("keydown", handleEscape);
     }
@@ -46,6 +66,13 @@ const PopNewCard = ({ isOpen, onClose }) => {
     }));
   };
 
+  const handleStatusChange = (status) => {
+    setFormData((prev) => ({
+      ...prev,
+      status,
+    }));
+  };
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
     const formattedDate = date.toISOString().split("T")[0];
@@ -63,28 +90,16 @@ const PopNewCard = ({ isOpen, onClose }) => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      await createTask({
-        title: formData.title,
-        description: formData.description,
-        topic: formData.topic,
-        status: "Без статуса",
-        date: formData.date,
-      });
-
-      // Сброс формы
-      setFormData({
-        title: "",
-        description: "",
-        topic: "Web Design",
-        date: new Date().toISOString().split("T")[0],
-      });
-      setSelectedDate(new Date());
-
+      const taskId = card._id || card.id;
+      await updateTask(taskId, formData);
       onClose();
     } catch (error) {
-      console.error("Ошибка создания задачи:", error);
-      alert("Ошибка при создании задачи");
+      console.error("Ошибка обновления задачи:", error);
+      alert("Ошибка при обновлении задачи");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -96,51 +111,66 @@ const PopNewCard = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="pop-new-card"
-      id="popNewCard"
+      className="pop-edit-card"
       style={{ display: isOpen ? "block" : "none" }}
-      translate="no"
     >
-      <div className="pop-new-card__container" onClick={handleContainerClick}>
-        <div className="pop-new-card__block">
-          <div className="pop-new-card__content">
-            <h3 className="pop-new-card__ttl">Создание задачи</h3>
-            <a href="#" className="pop-new-card__close" onClick={onClose}>
+      <div className="pop-edit-card__container" onClick={handleContainerClick}>
+        <div className="pop-edit-card__block">
+          <div className="pop-edit-card__content">
+            <h3 className="pop-edit-card__ttl">Редактирование задачи</h3>
+            <a href="#" className="pop-edit-card__close" onClick={onClose}>
               &#10006;
             </a>
-            <div className="pop-new-card__wrap">
+            <div className="pop-edit-card__wrap">
               <form
-                className="pop-new-card__form form-new"
-                id="formNewCard"
+                className="pop-edit-card__form form-edit"
                 onSubmit={handleSubmit}
               >
-                <div className="form-new__block">
-                  <label htmlFor="formTitle" className="subttl">
+                <div className="form-edit__block">
+                  <label htmlFor="editTitle" className="subttl">
                     Название задачи
                   </label>
                   <input
-                    className="form-new__input"
+                    className="form-edit__input"
                     type="text"
                     name="title"
-                    id="formTitle"
+                    id="editTitle"
                     placeholder="Введите название задачи..."
                     value={formData.title}
                     onChange={handleInputChange}
                     autoFocus
                   />
                 </div>
-                <div className="form-new__block">
-                  <label htmlFor="textArea" className="subttl">
+                <div className="form-edit__block">
+                  <label htmlFor="editDescription" className="subttl">
                     Описание задачи
                   </label>
                   <textarea
-                    className="form-new__area"
+                    className="form-edit__area"
                     name="description"
-                    id="textArea"
+                    id="editDescription"
                     placeholder="Введите описание задачи..."
                     value={formData.description}
                     onChange={handleInputChange}
                   ></textarea>
+                </div>
+                <div className="form-edit__block">
+                  <label htmlFor="editStatus" className="subttl">
+                    Статус
+                  </label>
+                  <select
+                    className="form-edit__select"
+                    name="status"
+                    id="editStatus"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                  >
+                    <option value="Без статуса">Без статуса</option>
+                    <option value="Нужно сделать">Нужно сделать</option>
+                    <option value="В работе">В работе</option>
+                    <option value="Тестирование">Тестирование</option>
+                    <option value="Готово">Готово</option>
+                  </select>
                 </div>
               </form>
               <Calendar
@@ -150,7 +180,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
                 onDateSelect={handleDateChange}
               />
             </div>
-            <div className="pop-new-card__categories categories">
+            <div className="pop-edit-card__categories categories">
               <p className="categories__p subttl">Категория</p>
               <div className="categories__themes">
                 <div
@@ -173,15 +203,22 @@ const PopNewCard = ({ isOpen, onClose }) => {
                 </div>
               </div>
             </div>
-            <button
-              className="form-new__create _hover01"
-              id="btnCreate"
-              onClick={handleSubmit}
-              style={{ content: "none", color: "#ffffff" }}
-              translate="no"
-            >
-              Создать задачу
-            </button>
+            <div className="pop-edit-card__btn-group">
+              <button
+                className="form-edit__cancel _btn-bor _hover03"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Отмена
+              </button>
+              <button
+                className="form-edit__save _btn-bg _hover01"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Сохранение..." : "Сохранить изменения"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -189,4 +226,4 @@ const PopNewCard = ({ isOpen, onClose }) => {
   );
 };
 
-export default PopNewCard;
+export default PopEditCard;
