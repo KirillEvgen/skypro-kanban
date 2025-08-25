@@ -123,7 +123,8 @@ const Button = styled.button`
 const EditTaskPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getTaskById, updateTask, deleteTask, loading, error } = useTasks();
+  const { getTaskById, updateTask, deleteTask, loading, error, loadTasks } =
+    useTasks();
   const [task, setTask] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -135,14 +136,20 @@ const EditTaskPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Проверяем, что ID содержит только цифры
-    if (!/^\d+$/.test(id)) {
+    console.log("EditTaskPage получил ID:", id, "тип:", typeof id);
+    console.log("Состояние загрузки:", loading);
+
+    // Если задачи еще загружаются, ждем
+    if (loading) {
+      console.log("Задачи загружаются, ждем...");
       return;
     }
 
-    const taskId = parseInt(id);
-    const foundTask = getTaskById(taskId);
+    const foundTask = getTaskById(id);
+    console.log("Найденная задача:", foundTask);
+
     if (foundTask) {
+      console.log("Устанавливаем данные задачи:", foundTask);
       setTask(foundTask);
       setFormData({
         title: foundTask.title,
@@ -152,9 +159,27 @@ const EditTaskPage = () => {
         date: foundTask.date,
       });
     } else {
-      setTask(null);
+      console.log("Задача не найдена, попробуем перезагрузить задачи...");
+      // Попробуем перезагрузить задачи
+      loadTasks().then(() => {
+        const retryTask = getTaskById(id);
+        if (retryTask) {
+          console.log("Задача найдена после перезагрузки:", retryTask);
+          setTask(retryTask);
+          setFormData({
+            title: retryTask.title,
+            description: retryTask.description,
+            topic: retryTask.topic,
+            status: retryTask.status,
+            date: retryTask.date,
+          });
+        } else {
+          console.log("Задача не найдена даже после перезагрузки");
+          setTask(null);
+        }
+      });
     }
-  }, [id, getTaskById]);
+  }, [id, getTaskById, loading, loadTasks]);
 
   const handleChange = (e) => {
     setFormData({
@@ -168,7 +193,7 @@ const EditTaskPage = () => {
     setIsSubmitting(true);
 
     try {
-      await updateTask(parseInt(id), formData);
+      await updateTask(id, formData);
       navigate("/");
     } catch (err) {
       console.error("Ошибка обновления задачи:", err);
@@ -185,7 +210,7 @@ const EditTaskPage = () => {
     if (window.confirm("Вы уверены, что хотите удалить эту задачу?")) {
       setIsSubmitting(true);
       try {
-        await deleteTask(parseInt(id));
+        await deleteTask(id);
         navigate("/");
       } catch (err) {
         console.error("Ошибка удаления задачи:", err);

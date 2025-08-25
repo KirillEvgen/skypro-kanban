@@ -16,7 +16,7 @@ import {
 } from "./Header.styled";
 import { Container } from "../shared/Shared.styled";
 
-const Header = () => {
+const Header = ({ onCreateTask }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -32,7 +32,12 @@ const Header = () => {
   };
 
   const handleCreateTask = () => {
-    navigate("/add-task");
+    if (onCreateTask) {
+      onCreateTask();
+    } else {
+      // Fallback на старую логику, если функция не передана
+      navigate("/add-task");
+    }
   };
 
   const handleLogout = () => {

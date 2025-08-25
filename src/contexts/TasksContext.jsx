@@ -150,14 +150,23 @@ export const TasksProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
+      console.log("Обновляем задачу с ID:", id, "данные:", taskData);
       const updatedTask = await tasksAPI.updateTask(id, taskData);
+      console.log("Задача обновлена:", updatedTask);
       setTasks((prev) =>
-        prev.map((task) => (task.id === id ? updatedTask : task))
+        prev.map((task) => {
+          // Обновляем задачу по _id или id
+          if (task._id === id || task.id === id || task.id === parseInt(id)) {
+            return updatedTask;
+          }
+          return task;
+        })
       );
       return updatedTask;
     } catch (err) {
       const errorMessage =
         err.response?.data?.message || "Ошибка при обновлении задачи";
+      console.error("Ошибка обновления задачи:", err);
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -170,7 +179,12 @@ export const TasksProvider = ({ children }) => {
     setError(null);
     try {
       await tasksAPI.deleteTask(id);
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      setTasks((prev) =>
+        prev.filter((task) => {
+          // Удаляем задачу по _id или id
+          return task._id !== id && task.id !== id && task.id !== parseInt(id);
+        })
+      );
     } catch (err) {
       const errorMessage =
         err.response?.data?.message || "Ошибка при удалении задачи";
