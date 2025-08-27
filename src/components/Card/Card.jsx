@@ -42,7 +42,7 @@ const Card = ({ themeClass, themeText, title, date, onOpenCard }) => {
     <CardItem>
       <CardContainer>
         <CardGroup>
-          <CardTheme themeClass={themeClass}>
+          <CardTheme $themeClass={themeClass}>
             <p>{themeText}</p>
           </CardTheme>
           <CardBtn onClick={onOpenCard}>

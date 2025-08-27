@@ -203,7 +203,25 @@ export const TasksProvider = ({ children }) => {
     const foundTask = tasks.find((task) => {
       console.log("Проверяем задачу:", task);
       console.log("task._id:", task._id, "task.id:", task.id);
-      return task._id === id || task.id === id || task.id === parseInt(id);
+
+      // Проверяем совпадение по _id (основной способ)
+      const matchById = task._id === id;
+
+      // Проверяем совпадение по id (числовое поле, если есть)
+      const matchByNumericId = task.id === id || task.id === parseInt(id);
+
+      console.log(
+        "Совпадение по _id:",
+        matchById,
+        "Совпадение по id:",
+        matchByNumericId
+      );
+
+      // Возвращаем true если есть совпадение по любому из полей
+      const isMatch = matchById || matchByNumericId;
+      console.log("Итоговое совпадение:", isMatch);
+
+      return isMatch;
     });
 
     console.log("Найденная задача:", foundTask);

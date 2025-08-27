@@ -1,24 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Column from "../Column/Column";
 import Card from "../Card/Card";
-import PopBrowse from "../popups/PopBrowse/PopBrowse";
-import PopNewCard from "../popups/PopNewCard/PopNewCard";
-import PopEditCard from "../popups/PopEditCard/PopEditCard";
 import { useTasks } from "../../contexts/TasksContext";
 import { MainContainer, MainBlock, MainContent } from "./Main.styled";
 import { Container } from "../shared/Shared.styled";
 import { cardList } from "../../data";
 
-const Main = ({ isPopNewCardOpen, setIsPopNewCardOpen }) => {
+const Main = () => {
   const navigate = useNavigate();
   const { tasks, loading, error, getTasksByStatus, createTask, deleteTask } =
     useTasks();
-
-  // Состояние для модальных окон
-  const [isPopBrowseOpen, setIsPopBrowseOpen] = useState(false);
-  const [isPopEditOpen, setIsPopEditOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
 
   const columnTitles = [
     "Без статуса",
@@ -43,46 +35,12 @@ const Main = ({ isPopNewCardOpen, setIsPopNewCardOpen }) => {
 
   const handleCardClick = (card) => {
     console.log("Клик по карточке:", card);
-    setSelectedCard(card);
-    setIsPopBrowseOpen(true);
-  };
-
-  const handleClosePopBrowse = () => {
-    setIsPopBrowseOpen(false);
-    setSelectedCard(null);
-  };
-
-  const handleClosePopNewCard = () => {
-    setIsPopNewCardOpen(false);
-  };
-
-  const handleClosePopEdit = () => {
-    setIsPopEditOpen(false);
-    setSelectedCard(null);
-  };
-
-  const handleEditTask = (card) => {
-    console.log("Редактируем задачу:", card);
-    setSelectedCard(card);
-    setIsPopBrowseOpen(false); // Закрываем модальное окно просмотра
-    setIsPopEditOpen(true); // Открываем модальное окно редактирования
-  };
-
-  const handleDeleteTask = async (card) => {
-    if (window.confirm("Вы уверены, что хотите удалить эту задачу?")) {
-      try {
-        const taskId = card._id || card.id;
-        await deleteTask(taskId);
-        handleClosePopBrowse();
-      } catch (error) {
-        console.error("Ошибка удаления задачи:", error);
-        alert("Ошибка при удалении задачи");
-      }
-    }
+    const taskId = card._id || card.id;
+    navigate(`/card/${taskId}`);
   };
 
   const handleCreateNewTask = () => {
-    setIsPopNewCardOpen(true);
+    navigate("/add-task");
   };
 
   const handleCreateTestTasks = async () => {
@@ -257,19 +215,6 @@ const Main = ({ isPopNewCardOpen, setIsPopNewCardOpen }) => {
           </MainContent>
         </MainBlock>
       </Container>
-      <PopBrowse
-        isOpen={isPopBrowseOpen}
-        onClose={handleClosePopBrowse}
-        card={selectedCard}
-        onEdit={handleEditTask}
-        onDelete={handleDeleteTask}
-      />
-      <PopNewCard isOpen={isPopNewCardOpen} onClose={handleClosePopNewCard} />
-      <PopEditCard
-        isOpen={isPopEditOpen}
-        onClose={handleClosePopEdit}
-        card={selectedCard}
-      />
     </MainContainer>
   );
 };

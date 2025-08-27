@@ -2,9 +2,16 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
 import { useTasks } from "../contexts/TasksContext";
+import Header from "../components/Header/Header";
 
 const EditTaskContainer = styled.div`
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const EditTaskContent = styled.div`
+  flex: 1;
   background-color: #f5f5f5;
   padding: 20px;
 `;
@@ -123,8 +130,15 @@ const Button = styled.button`
 const EditTaskPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getTaskById, updateTask, deleteTask, loading, error, loadTasks } =
-    useTasks();
+  const {
+    tasks,
+    getTaskById,
+    updateTask,
+    deleteTask,
+    loading,
+    error,
+    loadTasks,
+  } = useTasks();
   const [task, setTask] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -135,13 +149,23 @@ const EditTaskPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Эффект для загрузки задач, если они еще не загружены
+  useEffect(() => {
+    if (!loading && (!tasks || tasks.length === 0)) {
+      console.log("Задачи не загружены, загружаем...");
+      loadTasks();
+    }
+  }, [loading, tasks, loadTasks]);
+
+  // Эффект для поиска и установки задачи
   useEffect(() => {
     console.log("EditTaskPage получил ID:", id, "тип:", typeof id);
     console.log("Состояние загрузки:", loading);
+    console.log("Текущие задачи:", tasks);
 
-    // Если задачи еще загружаются, ждем
-    if (loading) {
-      console.log("Задачи загружаются, ждем...");
+    // Если задачи еще загружаются или не загружены, ждем
+    if (loading || !tasks || tasks.length === 0) {
+      console.log("Задачи загружаются или не загружены, ждем...");
       return;
     }
 
@@ -152,34 +176,17 @@ const EditTaskPage = () => {
       console.log("Устанавливаем данные задачи:", foundTask);
       setTask(foundTask);
       setFormData({
-        title: foundTask.title,
-        description: foundTask.description,
-        topic: foundTask.topic,
-        status: foundTask.status,
-        date: foundTask.date,
+        title: foundTask.title || "",
+        description: foundTask.description || "",
+        topic: foundTask.topic || "",
+        status: foundTask.status || "",
+        date: foundTask.date || "",
       });
     } else {
-      console.log("Задача не найдена, попробуем перезагрузить задачи...");
-      // Попробуем перезагрузить задачи
-      loadTasks().then(() => {
-        const retryTask = getTaskById(id);
-        if (retryTask) {
-          console.log("Задача найдена после перезагрузки:", retryTask);
-          setTask(retryTask);
-          setFormData({
-            title: retryTask.title,
-            description: retryTask.description,
-            topic: retryTask.topic,
-            status: retryTask.status,
-            date: retryTask.date,
-          });
-        } else {
-          console.log("Задача не найдена даже после перезагрузки");
-          setTask(null);
-        }
-      });
+      console.log("Задача не найдена");
+      setTask(null);
     }
-  }, [id, getTaskById, loading, loadTasks]);
+  }, [id, getTaskById, loading, tasks]);
 
   const handleChange = (e) => {
     setFormData({
@@ -220,119 +227,162 @@ const EditTaskPage = () => {
     }
   };
 
+  console.log(
+    "EditTaskPage render - task:",
+    task,
+    "loading:",
+    loading,
+    "error:",
+    error,
+    "tasks length:",
+    tasks?.length
+  );
+
+  // Показываем загрузку, если задачи еще загружаются
   if (loading) {
     return (
       <EditTaskContainer>
-        <EditTaskForm>
-          <div>Загрузка...</div>
-        </EditTaskForm>
+        <Header />
+        <EditTaskContent>
+          <EditTaskForm>
+            <div>Загрузка...</div>
+          </EditTaskForm>
+        </EditTaskContent>
       </EditTaskContainer>
     );
   }
 
+  // Показываем загрузку, если задачи еще не загружены
+  if (!tasks || tasks.length === 0) {
+    return (
+      <EditTaskContainer>
+        <Header />
+        <EditTaskContent>
+          <EditTaskForm>
+            <div>Загрузка задач...</div>
+          </EditTaskForm>
+        </EditTaskContent>
+      </EditTaskContainer>
+    );
+  }
+
+  // Показываем ошибку, если она есть
   if (error) {
     return (
       <EditTaskContainer>
-        <EditTaskForm>
-          <div style={{ color: "red", marginBottom: "20px" }}>{error}</div>
-          <Button onClick={handleCancel} className="secondary">
-            Назад
-          </Button>
-        </EditTaskForm>
+        <Header />
+        <EditTaskContent>
+          <EditTaskForm>
+            <div style={{ color: "red", marginBottom: "20px" }}>{error}</div>
+            <Button onClick={handleCancel} className="secondary">
+              Назад
+            </Button>
+          </EditTaskForm>
+        </EditTaskContent>
       </EditTaskContainer>
     );
   }
 
-  if (!task) {
-    return <Navigate to="/404" replace />;
+  // Перенаправляем на 404 только если задачи загружены, но задача не найдена
+  // Добавляем дополнительную проверку на то, что поиск задачи был выполнен
+  if (!loading && tasks && tasks.length > 0 && !task) {
+    // Проверяем, была ли попытка найти задачу
+    const foundTask = getTaskById(id);
+    if (!foundTask) {
+      console.log("Задача не найдена, перенаправляем на 404");
+      return <Navigate to="/404" replace />;
+    }
   }
 
   return (
     <EditTaskContainer>
-      <EditTaskForm onSubmit={handleSubmit}>
-        <Title>Редактировать задачу</Title>
-        <FormGroup>
-          <Label htmlFor="title">Название задачи</Label>
-          <Input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="description">Описание</Label>
-          <TextArea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="topic">Тема</Label>
-          <Select
-            id="topic"
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-          >
-            <option value="Web Design">Web Design</option>
-            <option value="Research">Research</option>
-            <option value="Copywriting">Copywriting</option>
-          </Select>
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="status">Статус</Label>
-          <Select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-          >
-            <option value="Без статуса">Без статуса</option>
-            <option value="Нужно сделать">Нужно сделать</option>
-            <option value="В работе">В работе</option>
-            <option value="Тестирование">Тестирование</option>
-            <option value="Готово">Готово</option>
-          </Select>
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="date">Дата</Label>
-          <Input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <ButtonGroup>
-          <Button
-            type="button"
-            className="danger"
-            onClick={handleDelete}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Удаление..." : "Удалить"}
-          </Button>
-          <Button
-            type="button"
-            className="secondary"
-            onClick={handleCancel}
-            disabled={isSubmitting}
-          >
-            Отмена
-          </Button>
-          <Button type="submit" className="primary" disabled={isSubmitting}>
-            {isSubmitting ? "Сохранение..." : "Сохранить изменения"}
-          </Button>
-        </ButtonGroup>
-      </EditTaskForm>
+      <Header />
+      <EditTaskContent>
+        <EditTaskForm onSubmit={handleSubmit}>
+          <Title>Редактировать задачу</Title>
+          <FormGroup>
+            <Label htmlFor="title">Название задачи</Label>
+            <Input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="description">Описание</Label>
+            <TextArea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="topic">Тема</Label>
+            <Select
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleChange}
+            >
+              <option value="Web Design">Web Design</option>
+              <option value="Research">Research</option>
+              <option value="Copywriting">Copywriting</option>
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="status">Статус</Label>
+            <Select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <option value="Без статуса">Без статуса</option>
+              <option value="Нужно сделать">Нужно сделать</option>
+              <option value="В работе">В работе</option>
+              <option value="Тестирование">Тестирование</option>
+              <option value="Готово">Готово</option>
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="date">Дата</Label>
+            <Input
+              type="date"
+              id="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <ButtonGroup>
+            <Button
+              type="button"
+              className="danger"
+              onClick={handleDelete}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Удаление..." : "Удалить"}
+            </Button>
+            <Button
+              type="button"
+              className="secondary"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Отмена
+            </Button>
+            <Button type="submit" className="primary" disabled={isSubmitting}>
+              {isSubmitting ? "Сохранение..." : "Сохранить изменения"}
+            </Button>
+          </ButtonGroup>
+        </EditTaskForm>
+      </EditTaskContent>
     </EditTaskContainer>
   );
 };

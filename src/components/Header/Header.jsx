@@ -32,12 +32,7 @@ const Header = ({ onCreateTask }) => {
   };
 
   const handleCreateTask = () => {
-    if (onCreateTask) {
-      onCreateTask();
-    } else {
-      // Fallback на старую логику, если функция не передана
-      navigate("/add-task");
-    }
+    navigate("/add-task");
   };
 
   const handleLogout = () => {

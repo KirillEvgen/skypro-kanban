@@ -2,9 +2,16 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useTasks } from "../contexts/TasksContext";
+import Header from "../components/Header/Header";
 
 const AddTaskContainer = styled.div`
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const AddTaskContent = styled.div`
+  flex: 1;
   background-color: #f5f5f5;
   padding: 20px;
 `;
@@ -169,88 +176,91 @@ const AddTaskPage = () => {
 
   return (
     <AddTaskContainer>
-      <AddTaskForm onSubmit={handleSubmit}>
-        <Title>Добавить новую задачу</Title>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-        <FormGroup>
-          <Label htmlFor="title">Название задачи</Label>
-          <Input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="description">Описание</Label>
-          <TextArea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="topic">Тема</Label>
-          <Select
-            id="topic"
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-            disabled={isSubmitting}
-          >
-            <option value="Web Design">Web Design</option>
-            <option value="Research">Research</option>
-            <option value="Copywriting">Copywriting</option>
-          </Select>
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="status">Статус</Label>
-          <Select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            disabled={isSubmitting}
-          >
-            <option value="Без статуса">Без статуса</option>
-            <option value="Нужно сделать">Нужно сделать</option>
-            <option value="В работе">В работе</option>
-            <option value="Тестирование">Тестирование</option>
-            <option value="Готово">Готово</option>
-          </Select>
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="date">Дата</Label>
-          <Input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </FormGroup>
-        <ButtonGroup>
-          <Button
-            type="button"
-            className="secondary"
-            onClick={handleCancel}
-            disabled={isSubmitting}
-          >
-            Отмена
-          </Button>
-          <Button type="submit" className="primary" disabled={isSubmitting}>
-            {isSubmitting ? "Добавление..." : "Добавить задачу"}
-          </Button>
-        </ButtonGroup>
-      </AddTaskForm>
+      <Header />
+      <AddTaskContent>
+        <AddTaskForm onSubmit={handleSubmit}>
+          <Title>Добавить новую задачу</Title>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          <FormGroup>
+            <Label htmlFor="title">Название задачи</Label>
+            <Input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="description">Описание</Label>
+            <TextArea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="topic">Тема</Label>
+            <Select
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            >
+              <option value="Web Design">Web Design</option>
+              <option value="Research">Research</option>
+              <option value="Copywriting">Copywriting</option>
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="status">Статус</Label>
+            <Select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            >
+              <option value="Без статуса">Без статуса</option>
+              <option value="Нужно сделать">Нужно сделать</option>
+              <option value="В работе">В работе</option>
+              <option value="Тестирование">Тестирование</option>
+              <option value="Готово">Готово</option>
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="date">Дата</Label>
+            <Input
+              type="date"
+              id="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </FormGroup>
+          <ButtonGroup>
+            <Button
+              type="button"
+              className="secondary"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Отмена
+            </Button>
+            <Button type="submit" className="primary" disabled={isSubmitting}>
+              {isSubmitting ? "Добавление..." : "Добавить задачу"}
+            </Button>
+          </ButtonGroup>
+        </AddTaskForm>
+      </AddTaskContent>
     </AddTaskContainer>
   );
 };
