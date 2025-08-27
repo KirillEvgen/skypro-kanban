@@ -249,10 +249,15 @@
   min-width: 375px;
   height: 100%;
   min-height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 6;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.pop-new-card[style*="display: block"] {
+  display: block !important;
 }
 .pop-new-card__container {
   width: 100%;
@@ -515,10 +520,15 @@
   height: 100%;
   min-width: 375px;
   min-height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 7;
+  z-index: 1001;
+  pointer-events: auto;
+}
+
+.pop-browse[style*="display: block"] {
+  display: block !important;
 }
 .pop-browse__container {
   width: 100%;
@@ -1309,10 +1319,15 @@
   min-width: 375px;
   height: 100%;
   min-height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 8;
+  z-index: 1002;
+  pointer-events: auto;
+}
+
+.pop-edit-card[style*="display: block"] {
+  display: block !important;
 }
 
 .pop-edit-card__container {

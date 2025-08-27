@@ -32,7 +32,11 @@ const Header = ({ onCreateTask }) => {
   };
 
   const handleCreateTask = () => {
-    navigate("/add-task");
+    if (onCreateTask) {
+      onCreateTask();
+    } else {
+      navigate("/add-task");
+    }
   };
 
   const handleLogout = () => {

@@ -7,7 +7,7 @@ import { MainContainer, MainBlock, MainContent } from "./Main.styled";
 import { Container } from "../shared/Shared.styled";
 import { cardList } from "../../data";
 
-const Main = () => {
+const Main = ({ onCardClick }) => {
   const navigate = useNavigate();
   const { tasks, loading, error, getTasksByStatus, createTask, deleteTask } =
     useTasks();
@@ -35,8 +35,12 @@ const Main = () => {
 
   const handleCardClick = (card) => {
     console.log("Клик по карточке:", card);
-    const taskId = card._id || card.id;
-    navigate(`/card/${taskId}`);
+    if (onCardClick) {
+      onCardClick(card);
+    } else {
+      const taskId = card._id || card.id;
+      navigate(`/card/${taskId}`);
+    }
   };
 
   const handleCreateNewTask = () => {
