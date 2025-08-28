@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Calendar from "../../Calendar/Calendar";
 import { useTasks } from "../../../contexts/TasksContext";
 
 const PopNewCard = ({ isOpen, onClose }) => {
-  // Перемещаем условный рендеринг в самое начало, до всех вызовов хуков
-  if (!isOpen) {
-    return null;
-  }
-
+  const navigate = useNavigate();
   const { createTask } = useTasks();
   const [formData, setFormData] = useState({
     title: "",
@@ -40,6 +37,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
   };
 
   const handleTopicChange = (topic) => {
+    console.log("Выбрана категория:", topic);
     setFormData((prev) => ({
       ...prev,
       topic,
@@ -64,6 +62,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
     }
 
     try {
+      console.log("Создаем задачу с данными:", formData);
       await createTask({
         title: formData.title,
         description: formData.description,
@@ -93,6 +92,11 @@ const PopNewCard = ({ isOpen, onClose }) => {
       onClose();
     }
   };
+
+  // Перемещаем условный рендеринг в конец, после всех вызовов хуков
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div

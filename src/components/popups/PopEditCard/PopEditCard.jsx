@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Calendar from "../../Calendar/Calendar";
 import { useTasks } from "../../../contexts/TasksContext";
 
 const PopEditCard = ({ isOpen, card, onClose }) => {
-  // Перемещаем условный рендеринг в самое начало, до всех вызовов хуков
-  if (!isOpen || !card) {
-    return null;
-  }
-
+  const navigate = useNavigate();
   const { updateTask } = useTasks();
   const [formData, setFormData] = useState({
     title: "",
@@ -22,7 +19,7 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
   // Инициализация формы при открытии модального окна
   useEffect(() => {
     if (isOpen && card) {
-      // isOpen и card уже проверены выше, но оставляем для безопасности
+      console.log("Инициализируем форму с данными карточки:", card);
       setFormData({
         title: card.title || "",
         description: card.description || "",
@@ -45,7 +42,6 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
     };
 
     if (isOpen) {
-      // isOpen уже проверен выше
       document.addEventListener("keydown", handleEscape);
       return () => document.removeEventListener("keydown", handleEscape);
     }
@@ -53,6 +49,7 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Изменение поля ${name}:`, value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -60,6 +57,7 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
   };
 
   const handleTopicChange = (topic) => {
+    console.log("Изменение категории:", topic);
     setFormData((prev) => ({
       ...prev,
       topic,
@@ -67,6 +65,7 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
   };
 
   const handleStatusChange = (status) => {
+    console.log("Изменение статуса:", status);
     setFormData((prev) => ({
       ...prev,
       status,
@@ -93,6 +92,7 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
     setIsSubmitting(true);
     try {
       const taskId = card._id || card.id;
+      console.log("Обновляем задачу с ID:", taskId, "данные:", formData);
       await updateTask(taskId, formData);
       onClose();
     } catch (error) {
@@ -108,6 +108,11 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
       onClose();
     }
   };
+
+  // Перемещаем условный рендеринг в конец, после всех вызовов хуков
+  if (!isOpen || !card) {
+    return null;
+  }
 
   return (
     <div

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Main from "../components/Main/Main";
 import Header from "../components/Header/Header";
@@ -16,52 +17,54 @@ const HomeContainer = styled.div`
 
 const HomePage = () => {
   const { deleteTask } = useTasks();
-  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
-  const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  // Определяем какое модальное окно должно быть открыто
+  const isNewTaskModalOpen = location.pathname === "/new-task";
+  const isBrowseModalOpen = location.pathname.startsWith("/card/") && id;
+  const isEditModalOpen = location.pathname.startsWith("/edit-task/") && id;
+
+  // Получаем задачу для модальных окон
+  const { getTaskById } = useTasks();
+  const selectedCard = id ? getTaskById(id) : null;
 
   const handleCreateNewTask = () => {
     console.log("Открываем модальное окно создания задачи");
-    setIsNewTaskModalOpen(true);
+    navigate("/new-task");
   };
 
   const handleCloseNewTaskModal = () => {
     console.log("Закрываем модальное окно создания задачи");
-    setIsNewTaskModalOpen(false);
+    navigate("/");
   };
 
   const handleCardClick = (card) => {
     console.log("Открываем модальное окно просмотра задачи:", card);
-    setSelectedCard(card);
-    setIsBrowseModalOpen(true);
+    navigate(`/card/${card._id || card.id}`);
   };
 
   const handleCloseBrowseModal = () => {
     console.log("Закрываем модальное окно просмотра задачи");
-    setIsBrowseModalOpen(false);
-    setSelectedCard(null);
+    navigate("/");
   };
 
   const handleEditCard = (card) => {
     console.log("Открываем модальное окно редактирования задачи:", card);
-    setSelectedCard(card);
-    setIsBrowseModalOpen(false);
-    setIsEditModalOpen(true);
+    navigate(`/edit-task/${card._id || card.id}`);
   };
 
   const handleCloseEditModal = () => {
     console.log("Закрываем модальное окно редактирования задачи");
-    setIsEditModalOpen(false);
-    setSelectedCard(null);
+    navigate("/");
   };
 
   const handleDeleteCard = async (card) => {
     try {
       const taskId = card._id || card.id;
       await deleteTask(taskId);
-      setIsBrowseModalOpen(false);
-      setSelectedCard(null);
+      navigate("/");
     } catch (error) {
       console.error("Ошибка удаления задачи:", error);
       alert("Ошибка при удалении задачи");

@@ -1,19 +1,10 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Calendar from "../../Calendar/Calendar";
 
 const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
+  const navigate = useNavigate();
   console.log("PopBrowse получил props:", { isOpen, card });
-
-  // Перемещаем условный рендеринг в самое начало, до всех вызовов хуков
-  if (!isOpen || !card) {
-    return null;
-  }
-
-  // Дополнительная проверка на существование необходимых полей
-  if (!card.title || !card.topic) {
-    console.error("Карточка не содержит необходимых данных:", card);
-    return null;
-  }
 
   // Обработка клавиши Escape
   useEffect(() => {
@@ -50,6 +41,38 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
     }
   };
 
+  // Функция для получения класса статуса
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Без статуса":
+        return "_gray";
+      case "Нужно сделать":
+        return "_orange";
+      case "В работе":
+        return "_green";
+      case "Тестирование":
+        return "_purple";
+      case "Готово":
+        return "_green";
+      default:
+        return "_gray";
+    }
+  };
+
+  // Функция для получения класса категории
+  const getTopicClass = (topic) => {
+    switch (topic) {
+      case "Web Design":
+        return "_orange";
+      case "Research":
+        return "_green";
+      case "Copywriting":
+        return "_purple";
+      default:
+        return "_gray";
+    }
+  };
+
   const handleEdit = () => {
     onEdit(card);
   };
@@ -64,6 +87,17 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
     }
   };
 
+  // Перемещаем условный рендеринг в конец, после всех вызовов хуков
+  if (!isOpen || !card) {
+    return null;
+  }
+
+  // Дополнительная проверка на существование необходимых полей
+  if (!card.title || !card.topic) {
+    console.error("Карточка не содержит необходимых данных:", card);
+    return null;
+  }
+
   return (
     <div className="pop-browse" style={{ display: isOpen ? "block" : "none" }}>
       <div className="pop-browse__container" onClick={handleContainerClick}>
@@ -71,16 +105,18 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
           <div className="pop-browse__content">
             <div className="pop-browse__top-block">
               <h3 className="pop-browse__ttl">{card.title}</h3>
-              <div className="categories__theme theme-top _orange _active-category">
-                <p className="_orange">{card.topic}</p>
+              <div
+                className={`categories__theme theme-top ${getTopicClass(card.topic)} _active-category`}
+              >
+                <p className={getTopicClass(card.topic)}>{card.topic}</p>
               </div>
             </div>
 
             <div className="pop-browse__status status">
               <p className="status__p subttl">Статус</p>
               <div className="status__themes">
-                <div className="status__theme _gray">
-                  <p className="_gray">{card.status}</p>
+                <div className={`status__theme ${getStatusClass(card.status)}`}>
+                  <p className={getStatusClass(card.status)}>{card.status}</p>
                 </div>
               </div>
             </div>
@@ -104,8 +140,10 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
 
             <div className="theme-down__categories theme-down">
               <p className="categories__p subttl">Категория</p>
-              <div className="categories__theme _orange _active-category">
-                <p className="_orange">{card.topic}</p>
+              <div
+                className={`categories__theme ${getTopicClass(card.topic)} _active-category`}
+              >
+                <p className={getTopicClass(card.topic)}>{card.topic}</p>
               </div>
             </div>
 

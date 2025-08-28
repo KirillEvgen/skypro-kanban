@@ -20,28 +20,25 @@ export const AuthProvider = ({ children }) => {
   // Проверяем токен при инициализации
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      checkAuth();
-    } else {
-      setLoading(false);
-    }
-  }, []);
+    const userData = localStorage.getItem("userData");
 
-  // Мемоизируем функцию checkAuth, чтобы избежать лишних ререндеров
-  const checkAuth = React.useCallback(async () => {
-    try {
-      const userData = await authAPI.getProfile();
-      setUser(userData);
-      setIsAuth(true);
-    } catch (err) {
-      // Если токен недействителен, очищаем localStorage
-      localStorage.removeItem("token");
-      localStorage.removeItem("userData");
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        setIsAuth(true);
+      } catch (err) {
+        console.error("Ошибка парсинга данных пользователя:", err);
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+        setIsAuth(false);
+        setUser(null);
+      }
+    } else {
       setIsAuth(false);
       setUser(null);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }, []);
 
   const login = async (credentials) => {

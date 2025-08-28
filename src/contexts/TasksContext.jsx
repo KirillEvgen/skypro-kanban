@@ -133,7 +133,11 @@ export const TasksProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
+      console.log("Создаем новую задачу:", taskData);
       const newTask = await tasksAPI.createTask(taskData);
+      console.log("Задача создана:", newTask);
+
+      // Добавляем задачу в контекст без дополнительных запросов
       setTasks((prev) => [...prev, newTask]);
       return newTask;
     } catch (err) {
@@ -153,10 +157,18 @@ export const TasksProvider = ({ children }) => {
       console.log("Обновляем задачу с ID:", id, "данные:", taskData);
       const updatedTask = await tasksAPI.updateTask(id, taskData);
       console.log("Задача обновлена:", updatedTask);
+
+      // Обновляем задачу в контексте без дополнительных запросов
       setTasks((prev) =>
         prev.map((task) => {
           // Обновляем задачу по _id или id
           if (task._id === id || task.id === id || task.id === parseInt(id)) {
+            console.log(
+              "Обновляем задачу в контексте:",
+              task._id || task.id,
+              "->",
+              updatedTask
+            );
             return updatedTask;
           }
           return task;
@@ -178,11 +190,19 @@ export const TasksProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
+      console.log("Удаляем задачу с ID:", id);
       await tasksAPI.deleteTask(id);
+
+      // Удаляем задачу из контекста без дополнительных запросов
       setTasks((prev) =>
         prev.filter((task) => {
           // Удаляем задачу по _id или id
-          return task._id !== id && task.id !== id && task.id !== parseInt(id);
+          const shouldKeep =
+            task._id !== id && task.id !== id && task.id !== parseInt(id);
+          if (!shouldKeep) {
+            console.log("Удаляем задачу из контекста:", task._id || task.id);
+          }
+          return shouldKeep;
         })
       );
     } catch (err) {

@@ -119,34 +119,6 @@ export const authAPI = {
       throw error;
     }
   },
-
-  // Получение профиля пользователя
-  getProfile: async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Токен не найден");
-      }
-
-      const response = await fetch(`${API_BASE_URL}/kanban/profile`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Ошибка получения профиля");
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Ошибка получения профиля:", error);
-      throw error;
-    }
-  },
 };
 
 // API для задач

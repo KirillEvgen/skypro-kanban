@@ -36,18 +36,10 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/add-task"
+        path="/new-task"
         element={
           <ProtectedRoute>
-            <AddTaskPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/edit-task/:id"
-        element={
-          <ProtectedRoute>
-            <EditTaskPage />
+            <HomePage />
           </ProtectedRoute>
         }
       />
@@ -55,7 +47,23 @@ const AppRoutes = () => {
         path="/card/:id"
         element={
           <ProtectedRoute>
-            <CardPage />
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/edit-task/:id"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/add-task"
+        element={
+          <ProtectedRoute>
+            <AddTaskPage />
           </ProtectedRoute>
         }
       />
