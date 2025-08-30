@@ -13,11 +13,36 @@ import {
 const Card = ({ themeClass, themeText, title, date, onOpenCard }) => {
   console.log("Card получил props:", { onOpenCard });
 
+  // Функция для форматирования даты
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        // Если это не валидная дата, возвращаем как есть
+        return dateString;
+      }
+
+      // Форматируем в DD.MM.YY
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear().toString().slice(-2);
+
+      return `${day}.${month}.${year}`;
+    } catch (error) {
+      console.error("Ошибка форматирования даты:", error);
+      return dateString;
+    }
+  };
+
+  const formattedDate = formatDate(date);
+
   return (
     <CardItem>
       <CardContainer>
         <CardGroup>
-          <CardTheme themeClass={themeClass}>
+          <CardTheme $themeClass={themeClass}>
             <p>{themeText}</p>
           </CardTheme>
           <CardBtn onClick={onOpenCard}>
@@ -44,7 +69,7 @@ const Card = ({ themeClass, themeText, title, date, onOpenCard }) => {
                 strokeLinejoin="round"
               />
             </svg>
-            <p>{date}</p>
+            <p>{formattedDate}</p>
           </CardDate>
         </CardContent>
       </CardContainer>

@@ -48,7 +48,7 @@ export const CardTheme = styled.div`
   align-items: center;
   justify-content: center;
   background-color: ${(props) => {
-    switch (props.themeClass) {
+    switch (props.$themeClass) {
       case "_orange":
         return "#ffe4c2";
       case "_green":
@@ -60,7 +60,7 @@ export const CardTheme = styled.div`
     }
   }};
   color: ${(props) => {
-    switch (props.themeClass) {
+    switch (props.$themeClass) {
       case "_orange":
         return "#ff6d00";
       case "_green":

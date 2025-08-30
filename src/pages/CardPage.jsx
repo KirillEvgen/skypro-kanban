@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
-import { cardList } from "../data";
+import { useTasks } from "../contexts/TasksContext";
+import Header from "../components/Header/Header";
 
 const CardContainer = styled.div`
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const CardPageContent = styled.div`
+  flex: 1;
   background-color: #f5f5f5;
   padding: 20px;
 `;
@@ -141,24 +148,37 @@ const Button = styled.button`
 const CardPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { tasks, getTaskById, loadTasks } = useTasks();
   const [task, setTask] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Проверяем, что ID содержит только цифры
-    if (!/^\d+$/.test(id)) {
-      setError("Некорректный ID задачи");
+    console.log("CardPage получил ID:", id, "тип:", typeof id);
+    console.log("Текущие задачи:", tasks);
+
+    // Если задачи еще не загружены, загружаем их
+    if (!tasks || tasks.length === 0) {
+      console.log("Задачи не загружены, загружаем...");
+      loadTasks().then(() => {
+        const foundTask = getTaskById(id);
+        console.log("Найденная задача после загрузки:", foundTask);
+
+        if (foundTask) {
+          setTask(foundTask);
+        } else {
+          setError("Задача не найдена");
+        }
+      });
       return;
     }
 
-    const taskId = parseInt(id);
-    const foundTask = cardList.find((card) => card.id === taskId);
+    const foundTask = getTaskById(id);
     if (foundTask) {
       setTask(foundTask);
     } else {
       setError("Задача не найдена");
     }
-  }, [id]);
+  }, [id, getTaskById, tasks, loadTasks]);
 
   const getTopicClass = (topic) => {
     return topic.toLowerCase().replace(" ", "-");
@@ -166,6 +186,27 @@ const CardPage = () => {
 
   const getStatusClass = (status) => {
     return status.toLowerCase().replace(" ", "-");
+  };
+
+  // Функция для форматирования даты
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
+
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear().toString().slice(-2);
+
+      return `${day}.${month}.${year}`;
+    } catch (error) {
+      console.error("Ошибка форматирования даты:", error);
+      return dateString;
+    }
   };
 
   const handleEdit = () => {
@@ -176,73 +217,94 @@ const CardPage = () => {
     navigate("/");
   };
 
+  // Показываем загрузку, если задачи еще не загружены
+  if (!tasks || tasks.length === 0) {
+    return (
+      <CardContainer>
+        <Header />
+        <CardPageContent>
+          <CardContent>
+            <div>Загрузка задач...</div>
+          </CardContent>
+        </CardPageContent>
+      </CardContainer>
+    );
+  }
+
+  // Перенаправляем на 404 только если задачи загружены, но задача не найдена
   if (error) {
-    // Если задача не найдена, перенаправляем на 404 страницу
     return <Navigate to="/404" replace />;
   }
 
+  // Показываем загрузку, если задача еще не найдена
   if (!task) {
     return (
       <CardContainer>
-        <CardContent>
-          <div>Загрузка...</div>
-        </CardContent>
+        <Header />
+        <CardPageContent>
+          <CardContent>
+            <div>Загрузка задачи...</div>
+          </CardContent>
+        </CardPageContent>
       </CardContainer>
     );
   }
 
   return (
     <CardContainer>
-      <CardContent>
-        <Title>Просмотр задачи</Title>
+      <Header />
+      <CardPageContent>
+        <CardContent>
+          <Title>Просмотр задачи</Title>
 
-        <CardInfo>
-          <Label>ID задачи</Label>
-          <Value>{task.id}</Value>
-        </CardInfo>
+          <CardInfo>
+            <Label>ID задачи</Label>
+            <Value>{task._id || task.id}</Value>
+          </CardInfo>
 
-        <CardInfo>
-          <Label>Название</Label>
-          <Value>{task.title}</Value>
-        </CardInfo>
+          <CardInfo>
+            <Label>Название</Label>
+            <Value>{task.title}</Value>
+          </CardInfo>
 
-        <CardInfo>
-          <Label>Описание</Label>
-          <Value>{task.description}</Value>
-        </CardInfo>
+          <CardInfo>
+            <Label>Описание</Label>
+            <Value>{task.description}</Value>
+          </CardInfo>
 
-        <CardInfo>
-          <Label>Тема</Label>
-          <Value>
-            <TopicBadge className={getTopicClass(task.topic)}>
-              {task.topic}
-            </TopicBadge>
-          </Value>
-        </CardInfo>
+          <CardInfo>
+            <Label>Тема</Label>
+            <Value>
+              <TopicBadge className={getTopicClass(task.topic)}>
+                {task.topic}
+              </TopicBadge>
+            </Value>
+          </CardInfo>
 
-        <CardInfo>
-          <Label>Статус</Label>
-          <Value>
-            <StatusBadge className={getStatusClass(task.status)}>
-              {task.status}
-            </StatusBadge>
-          </Value>
-        </CardInfo>
+          <CardInfo>
+            <Label>Статус</Label>
+            <Value>
+              <StatusBadge className={getStatusClass(task.status)}>
+                {task.status}
+              </StatusBadge>
+            </Value>
+          </CardInfo>
 
-        <CardInfo>
-          <Label>Дата</Label>
-          <Value>{task.date}</Value>
-        </CardInfo>
+          <CardInfo>
+            <Label>Дата</Label>
+            <Value>{formatDate(task.date)}</Value>
+          </CardInfo>
 
-        <ButtonGroup>
-          <Button onClick={handleBack} className="secondary">
-            Назад
-          </Button>
-          <Button onClick={handleEdit} className="primary">
-            Редактировать
-          </Button>
-        </ButtonGroup>
-      </CardContent>
+          <ButtonGroup>
+            <Button onClick={handleBack} className="secondary">
+              Назад
+            </Button>
+            <Button onClick={handleEdit} className="primary">
+              Редактировать
+            </Button>
+          </ButtonGroup>
+        </CardContent>
+      </CardPageContent>
     </CardContainer>
   );
 };

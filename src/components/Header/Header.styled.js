@@ -118,7 +118,7 @@ export const HeaderPopUserSet = styled.div`
   padding: 34px;
   text-align: center;
   z-index: 2;
-  display: ${(props) => (props.isOpen ? "block" : "none")};
+  display: ${(props) => (props.$isOpen ? "block" : "none")};
 `;
 
 export const PopUserSetName = styled.p`

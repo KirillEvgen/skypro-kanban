@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useTasks } from "../contexts/TasksContext";
+import Header from "../components/Header/Header";
 
 const AddTaskContainer = styled.div`
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const AddTaskContent = styled.div`
+  flex: 1;
   background-color: #f5f5f5;
   padding: 20px;
 `;
@@ -108,6 +116,21 @@ const Button = styled.button`
       background-color: #5a6268;
     }
   }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #e74c3c;
+  background-color: #fdf2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
 `;
 
 const AddTaskPage = () => {
@@ -118,21 +141,33 @@ const AddTaskPage = () => {
     status: "Без статуса",
     date: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { createTask, error, clearError } = useTasks();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Очищаем ошибку при изменении полей
+    if (error) {
+      clearError();
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Здесь будет логика добавления задачи
-    console.log("Новая задача:", formData);
-    // После добавления перенаправляем на главную
-    navigate("/");
+    setIsSubmitting(true);
+
+    try {
+      await createTask(formData);
+      navigate("/");
+    } catch (err) {
+      console.error("Ошибка создания задачи:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -141,77 +176,91 @@ const AddTaskPage = () => {
 
   return (
     <AddTaskContainer>
-      <AddTaskForm onSubmit={handleSubmit}>
-        <Title>Добавить новую задачу</Title>
-        <FormGroup>
-          <Label htmlFor="title">Название задачи</Label>
-          <Input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="description">Описание</Label>
-          <TextArea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="topic">Тема</Label>
-          <Select
-            id="topic"
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-          >
-            <option value="Web Design">Web Design</option>
-            <option value="Research">Research</option>
-            <option value="Copywriting">Copywriting</option>
-          </Select>
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="status">Статус</Label>
-          <Select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-          >
-            <option value="Без статуса">Без статуса</option>
-            <option value="Нужно сделать">Нужно сделать</option>
-            <option value="В работе">В работе</option>
-            <option value="Тестирование">Тестирование</option>
-            <option value="Готово">Готово</option>
-          </Select>
-        </FormGroup>
-        <FormGroup>
-          <Label htmlFor="date">Дата</Label>
-          <Input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <ButtonGroup>
-          <Button type="button" className="secondary" onClick={handleCancel}>
-            Отмена
-          </Button>
-          <Button type="submit" className="primary">
-            Добавить задачу
-          </Button>
-        </ButtonGroup>
-      </AddTaskForm>
+      <Header />
+      <AddTaskContent>
+        <AddTaskForm onSubmit={handleSubmit}>
+          <Title>Добавить новую задачу</Title>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          <FormGroup>
+            <Label htmlFor="title">Название задачи</Label>
+            <Input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="description">Описание</Label>
+            <TextArea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="topic">Тема</Label>
+            <Select
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            >
+              <option value="Web Design">Web Design</option>
+              <option value="Research">Research</option>
+              <option value="Copywriting">Copywriting</option>
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="status">Статус</Label>
+            <Select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            >
+              <option value="Без статуса">Без статуса</option>
+              <option value="Нужно сделать">Нужно сделать</option>
+              <option value="В работе">В работе</option>
+              <option value="Тестирование">Тестирование</option>
+              <option value="Готово">Готово</option>
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="date">Дата</Label>
+            <Input
+              type="date"
+              id="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </FormGroup>
+          <ButtonGroup>
+            <Button
+              type="button"
+              className="secondary"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Отмена
+            </Button>
+            <Button type="submit" className="primary" disabled={isSubmitting}>
+              {isSubmitting ? "Добавление..." : "Добавить задачу"}
+            </Button>
+          </ButtonGroup>
+        </AddTaskForm>
+      </AddTaskContent>
     </AddTaskContainer>
   );
 };
