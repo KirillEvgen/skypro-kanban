@@ -8,7 +8,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
   const { createTask } = useTasks();
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
+    description: "Описание задачи",
     topic: "Web Design",
     date: new Date().toISOString().split("T")[0],
   });
@@ -38,10 +38,23 @@ const PopNewCard = ({ isOpen, onClose }) => {
 
   const handleTopicChange = (topic) => {
     console.log("Выбрана категория:", topic);
-    setFormData((prev) => ({
-      ...prev,
-      topic,
-    }));
+    console.log("Текущее состояние до обновления:", formData);
+
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        topic,
+      };
+      console.log("Обновленные данные формы:", updated);
+      return updated;
+    });
+
+    // Принудительно обновляем состояние
+    setTimeout(() => {
+      console.log("Принудительно обновляем состояние после выбора категории");
+      console.log("Состояние после обновления:", formData);
+      setFormData((current) => ({ ...current }));
+    }, 0);
   };
 
   const handleDateChange = (date) => {
@@ -61,9 +74,14 @@ const PopNewCard = ({ isOpen, onClose }) => {
       return;
     }
 
+    if (!formData.description.trim()) {
+      alert("Пожалуйста, введите описание задачи");
+      return;
+    }
+
     try {
       console.log("Создаем задачу с данными:", formData);
-      await createTask({
+      const newTask = await createTask({
         title: formData.title,
         description: formData.description,
         topic: formData.topic,
@@ -71,15 +89,22 @@ const PopNewCard = ({ isOpen, onClose }) => {
         date: formData.date,
       });
 
+      console.log("Задача успешно создана:", newTask);
+
       // Сброс формы
       setFormData({
         title: "",
-        description: "",
+        description: "Описание задачи",
         topic: "Web Design",
         date: new Date().toISOString().split("T")[0],
       });
       setSelectedDate(new Date());
 
+      // Принудительно обновляем страницу после создания задачи
+      console.log("Принудительно обновляем страницу после создания задачи");
+      window.location.reload();
+
+      // Закрываем модальное окно
       onClose();
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
@@ -92,6 +117,14 @@ const PopNewCard = ({ isOpen, onClose }) => {
       onClose();
     }
   };
+
+  // Отладочная информация в useEffect
+  useEffect(() => {
+    if (isOpen) {
+      console.log("PopNewCard - текущее состояние формы:", formData);
+      console.log("PopNewCard - выбранная категория:", formData.topic);
+    }
+  }, [formData, isOpen]);
 
   // Перемещаем условный рендеринг в конец, после всех вызовов хуков
   if (!isOpen) {
@@ -160,18 +193,27 @@ const PopNewCard = ({ isOpen, onClose }) => {
                 <div
                   className={`categories__theme _orange ${formData.topic === "Web Design" ? "_active-category" : ""}`}
                   onClick={() => handleTopicChange("Web Design")}
+                  style={{ cursor: "pointer" }}
+                  data-topic="Web Design"
+                  data-active={formData.topic === "Web Design"}
                 >
                   <p className="_orange">Web Design</p>
                 </div>
                 <div
                   className={`categories__theme _green ${formData.topic === "Research" ? "_active-category" : ""}`}
                   onClick={() => handleTopicChange("Research")}
+                  style={{ cursor: "pointer" }}
+                  data-topic="Research"
+                  data-active={formData.topic === "Research"}
                 >
                   <p className="_green">Research</p>
                 </div>
                 <div
                   className={`categories__theme _purple ${formData.topic === "Copywriting" ? "_active-category" : ""}`}
                   onClick={() => handleTopicChange("Copywriting")}
+                  style={{ cursor: "pointer" }}
+                  data-topic="Copywriting"
+                  data-active={formData.topic === "Copywriting"}
                 >
                   <p className="_purple">Copywriting</p>
                 </div>

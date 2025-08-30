@@ -136,9 +136,38 @@ export const TasksProvider = ({ children }) => {
       console.log("Создаем новую задачу:", taskData);
       const newTask = await tasksAPI.createTask(taskData);
       console.log("Задача создана:", newTask);
+      console.log("Тип созданной задачи:", typeof newTask);
+      console.log("ID созданной задачи:", newTask._id || newTask.id);
+      console.log("Статус созданной задачи:", newTask.status);
 
-      // Добавляем задачу в контекст без дополнительных запросов
-      setTasks((prev) => [...prev, newTask]);
+      // Добавляем задачу в контекст
+      setTasks((prev) => {
+        console.log("Предыдущий список задач:", prev);
+        console.log("Новая задача от API:", newTask);
+
+        // Проверяем, что новая задача не дублируется
+        const existingTask = prev.find(
+          (task) =>
+            (task._id && task._id === newTask._id) ||
+            (task.id && task.id === newTask.id)
+        );
+
+        if (existingTask) {
+          console.log("Задача уже существует, обновляем её:", existingTask);
+          const updatedTasks = prev.map((task) =>
+            (task._id && task._id === newTask._id) ||
+            (task.id && task.id === newTask.id)
+              ? newTask
+              : task
+          );
+          console.log("Обновленный список задач после создания:", updatedTasks);
+          return updatedTasks;
+        } else {
+          const updatedTasks = [...prev, newTask];
+          console.log("Обновленный список задач после создания:", updatedTasks);
+          return updatedTasks;
+        }
+      });
       return newTask;
     } catch (err) {
       const errorMessage =
@@ -157,28 +186,87 @@ export const TasksProvider = ({ children }) => {
       console.log("Обновляем задачу с ID:", id, "данные:", taskData);
       const updatedTask = await tasksAPI.updateTask(id, taskData);
       console.log("Задача обновлена:", updatedTask);
+      console.log("Тип обновленной задачи:", typeof updatedTask);
+      console.log("ID обновленной задачи:", updatedTask._id || updatedTask.id);
+      console.log("Статус обновленной задачи:", updatedTask.status);
 
-      // Обновляем задачу в контексте без дополнительных запросов
-      setTasks((prev) =>
-        prev.map((task) => {
+      // Обновляем задачу в контексте
+      setTasks((prev) => {
+        console.log("Предыдущий список задач:", prev);
+        console.log("Ищем задачу с ID:", id, "тип:", typeof id);
+        console.log("Обновленная задача от API:", updatedTask);
+
+        let found = false;
+        const updatedTasks = prev.map((task) => {
           // Обновляем задачу по _id или id
-          if (task._id === id || task.id === id || task.id === parseInt(id)) {
+          const taskId = task._id || task.id;
+          const updateId = id;
+          console.log(
+            `Сравниваем: taskId=${taskId} (${typeof taskId}) с updateId=${updateId} (${typeof updateId})`
+          );
+
+          // Проверяем совпадение по строковому и числовому ID
+          const isMatch =
+            taskId === updateId ||
+            taskId === parseInt(updateId) ||
+            taskId === updateId.toString() ||
+            (typeof taskId === "string" && taskId === updateId.toString()) ||
+            (typeof updateId === "string" && updateId === taskId.toString());
+
+          if (isMatch) {
+            found = true;
             console.log(
               "Обновляем задачу в контексте:",
-              task._id || task.id,
+              taskId,
               "->",
               updatedTask
             );
             return updatedTask;
           }
           return task;
-        })
-      );
+        });
+
+        if (!found) {
+          console.error("Задача с ID", id, "не найдена в контексте!");
+          console.log(
+            "Доступные задачи:",
+            prev.map((t) => ({ id: t._id || t.id, title: t.title }))
+          );
+        }
+
+        console.log("Обновленный список задач после обновления:", updatedTasks);
+
+        // Проверяем, что задача действительно обновилась
+        const updatedTaskInList = updatedTasks.find(
+          (task) => (task._id && task._id === id) || (task.id && task.id === id)
+        );
+
+        if (updatedTaskInList) {
+          console.log(
+            "Задача успешно обновлена в контексте:",
+            updatedTaskInList
+          );
+        } else {
+          console.error("Задача не найдена в обновленном списке!");
+        }
+
+        console.log("Возвращаем обновленный список задач:", updatedTasks);
+        return updatedTasks;
+      });
+
       return updatedTask;
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message || "Ошибка при обновлении задачи";
+        err.response?.data?.message ||
+        err.message ||
+        "Ошибка при обновлении задачи";
       console.error("Ошибка обновления задачи:", err);
+      console.error("Детали ошибки в контексте:", {
+        message: err.message,
+        response: err.response,
+        status: err.status,
+        stack: err.stack,
+      });
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -193,18 +281,24 @@ export const TasksProvider = ({ children }) => {
       console.log("Удаляем задачу с ID:", id);
       await tasksAPI.deleteTask(id);
 
-      // Удаляем задачу из контекста без дополнительных запросов
-      setTasks((prev) =>
-        prev.filter((task) => {
+      // Удаляем задачу из контекста
+      setTasks((prev) => {
+        console.log("Предыдущий список задач:", prev);
+        const updatedTasks = prev.filter((task) => {
           // Удаляем задачу по _id или id
+          const taskId = task._id || task.id;
+          const deleteId = id;
           const shouldKeep =
-            task._id !== id && task.id !== id && task.id !== parseInt(id);
+            taskId !== deleteId && taskId !== parseInt(deleteId);
+
           if (!shouldKeep) {
-            console.log("Удаляем задачу из контекста:", task._id || task.id);
+            console.log("Удаляем задачу из контекста:", taskId);
           }
           return shouldKeep;
-        })
-      );
+        });
+        console.log("Обновленный список задач после удаления:", updatedTasks);
+        return updatedTasks;
+      });
     } catch (err) {
       const errorMessage =
         err.response?.data?.message || "Ошибка при удалении задачи";
@@ -256,7 +350,15 @@ export const TasksProvider = ({ children }) => {
       tasks.map((task) => task.status)
     );
 
-    const filteredTasks = tasks.filter((task) => task.status === status);
+    const filteredTasks = tasks.filter((task) => {
+      const matches = task.status === status;
+      if (matches) {
+        console.log(
+          `Задача "${task.title}" (ID: ${task._id || task.id}) соответствует статусу "${status}"`
+        );
+      }
+      return matches;
+    });
     console.log(`Результат фильтрации для "${status}":`, filteredTasks);
     return filteredTasks;
   };

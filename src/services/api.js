@@ -211,6 +211,8 @@ export const tasksAPI = {
         throw new Error("Токен не найден");
       }
 
+      console.log("Отправляем данные для создания задачи:", taskData);
+
       const response = await fetch(`${API_BASE_URL}/kanban`, {
         method: "POST",
         headers: {
@@ -219,12 +221,18 @@ export const tasksAPI = {
         body: JSON.stringify(taskData),
       });
 
+      console.log("Статус ответа создания задачи:", response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Ошибка API создания задачи:", errorData);
         throw new Error(errorData.error || "Ошибка создания задачи");
       }
 
       const data = await response.json();
+      console.log("Ответ от API создания задачи:", data);
+      console.log("Тип данных:", typeof data);
+      console.log("Структура данных:", JSON.stringify(data, null, 2));
       return data;
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
@@ -240,6 +248,12 @@ export const tasksAPI = {
         throw new Error("Токен не найден");
       }
 
+      console.log("Отправляем данные для обновления задачи:", { id, taskData });
+      console.log(
+        "JSON данные для отправки:",
+        JSON.stringify(taskData, null, 2)
+      );
+
       const response = await fetch(`${API_BASE_URL}/kanban/${id}`, {
         method: "PUT",
         headers: {
@@ -248,12 +262,29 @@ export const tasksAPI = {
         body: JSON.stringify(taskData),
       });
 
+      console.log("Статус ответа обновления задачи:", response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Ошибка обновления задачи");
+        console.error("Ошибка API обновления задачи:", errorData);
+        console.error("Статус ответа:", response.status);
+        console.error("Заголовки ответа:", response.headers);
+        throw new Error(
+          errorData.error || `Ошибка обновления задачи (${response.status})`
+        );
       }
 
       const data = await response.json();
+      console.log("Ответ от API обновления задачи:", data);
+      console.log("Тип данных:", typeof data);
+      console.log("Структура данных:", JSON.stringify(data, null, 2));
+
+      // Проверяем, что данные содержат необходимые поля
+      if (!data || typeof data !== "object") {
+        console.error("API вернул некорректные данные:", data);
+        throw new Error("Некорректный ответ от API");
+      }
+
       return data;
     } catch (error) {
       console.error("Ошибка обновления задачи:", error);

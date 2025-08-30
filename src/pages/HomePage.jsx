@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Main from "../components/Main/Main";
@@ -27,8 +27,19 @@ const HomePage = () => {
   const isEditModalOpen = location.pathname.startsWith("/edit-task/") && id;
 
   // Получаем задачу для модальных окон
-  const { getTaskById } = useTasks();
-  const selectedCard = id ? getTaskById(id) : null;
+  const { getTaskById, tasks } = useTasks();
+  const [selectedCard, setSelectedCard] = useState(null);
+
+  // Принудительно обновляем выбранную карточку при изменении задач
+  useEffect(() => {
+    if (id) {
+      const card = getTaskById(id);
+      console.log("Обновляем выбранную карточку:", card);
+      setSelectedCard(card);
+    } else {
+      setSelectedCard(null);
+    }
+  }, [id, tasks, getTaskById]);
 
   const handleCreateNewTask = () => {
     console.log("Открываем модальное окно создания задачи");

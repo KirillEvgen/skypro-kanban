@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Column from "../Column/Column";
 import Card from "../Card/Card";
@@ -9,8 +9,35 @@ import { cardList } from "../../data";
 
 const Main = ({ onCardClick }) => {
   const navigate = useNavigate();
-  const { tasks, loading, error, getTasksByStatus, createTask, deleteTask } =
-    useTasks();
+  const {
+    tasks,
+    loading,
+    error,
+    getTasksByStatus,
+    createTask,
+    deleteTask,
+    loadTasks,
+  } = useTasks();
+
+  // Загружаем задачи при монтировании компонента
+  useEffect(() => {
+    console.log("Main компонент смонтирован, загружаем задачи...");
+    loadTasks();
+  }, []); // Убираем loadTasks из зависимостей
+
+  // Логируем изменения задач
+  useEffect(() => {
+    console.log("Задачи изменились:", tasks);
+    console.log("Количество задач:", tasks.length);
+    console.log(
+      "Статусы задач:",
+      tasks.map((t) => ({
+        id: t._id || t.id,
+        title: t.title,
+        status: t.status,
+      }))
+    );
+  }, [tasks]);
 
   const columnTitles = [
     "Без статуса",
@@ -115,10 +142,15 @@ const Main = ({ onCardClick }) => {
   }
 
   // Отладочная информация
+  console.log("=== ОТЛАДКА MAIN КОМПОНЕНТА ===");
   console.log("Всего задач:", tasks?.length || 0);
   console.log("Задачи:", tasks);
   console.log("Тип задач:", typeof tasks);
   console.log("Является ли массивом:", Array.isArray(tasks));
+  console.log("Статусы всех задач:", tasks?.map((task) => task.status) || []);
+  console.log("Loading:", loading);
+  console.log("Error:", error);
+  console.log("=== КОНЕЦ ОТЛАДКИ ===");
 
   // Защита от случаев, когда tasks не является массивом
   if (!Array.isArray(tasks)) {
@@ -186,9 +218,24 @@ const Main = ({ onCardClick }) => {
                       borderRadius: "5px",
                       cursor: "pointer",
                       fontSize: "14px",
+                      marginRight: "10px",
                     }}
                   >
                     Создать тестовые задачи
+                  </button>
+                  <button
+                    onClick={loadTasks}
+                    style={{
+                      padding: "10px 20px",
+                      backgroundColor: "#28a745",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Загрузить задачи
                   </button>
                 </div>
               </div>
@@ -200,18 +247,29 @@ const Main = ({ onCardClick }) => {
                   tasksInColumn.length,
                   "задач"
                 );
+                console.log(`Задачи в колонке "${title}":`, tasksInColumn);
+                console.log(
+                  `Количество задач в колонке "${title}":`,
+                  tasksInColumn.length
+                );
                 return (
-                  <Column key={title} title={title}>
-                    {tasksInColumn.map((card) => (
-                      <Card
-                        key={card._id || card.id}
-                        themeClass={getThemeClass(card.topic)}
-                        themeText={card.topic}
-                        title={card.title}
-                        date={card.date}
-                        onOpenCard={() => handleCardClick(card)}
-                      />
-                    ))}
+                  <Column
+                    key={`${title}-${tasksInColumn.length}`}
+                    title={title}
+                  >
+                    {tasksInColumn.map((card) => {
+                      console.log("Рендерим карточку:", card);
+                      return (
+                        <Card
+                          key={card._id || card.id}
+                          themeClass={getThemeClass(card.topic)}
+                          themeText={card.topic}
+                          title={card.title}
+                          date={card.date}
+                          onOpenCard={() => handleCardClick(card)}
+                        />
+                      );
+                    })}
                   </Column>
                 );
               })

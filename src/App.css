@@ -76,6 +76,18 @@
   opacity: 1;
 }
 
+._active-category._orange {
+  opacity: 1;
+}
+
+._active-category._green {
+  opacity: 1;
+}
+
+._active-category._purple {
+  opacity: 1;
+}
+
 .pop-wrap {
   position: relative;
   top: 0;

@@ -20,6 +20,7 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
   useEffect(() => {
     if (isOpen && card) {
       console.log("Инициализируем форму с данными карточки:", card);
+      console.log("ID карточки:", card._id || card.id);
       setFormData({
         title: card.title || "",
         description: card.description || "",
@@ -58,18 +59,26 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
 
   const handleTopicChange = (topic) => {
     console.log("Изменение категории:", topic);
-    setFormData((prev) => ({
-      ...prev,
-      topic,
-    }));
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        topic,
+      };
+      console.log("Обновленные данные формы:", updated);
+      return updated;
+    });
   };
 
   const handleStatusChange = (status) => {
     console.log("Изменение статуса:", status);
-    setFormData((prev) => ({
-      ...prev,
-      status,
-    }));
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        status,
+      };
+      console.log("Обновленные данные формы после изменения статуса:", updated);
+      return updated;
+    });
   };
 
   const handleDateChange = (date) => {
@@ -92,12 +101,36 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
     setIsSubmitting(true);
     try {
       const taskId = card._id || card.id;
-      console.log("Обновляем задачу с ID:", taskId, "данные:", formData);
-      await updateTask(taskId, formData);
+      console.log(
+        "Обновляем задачу с ID:",
+        taskId,
+        "тип:",
+        typeof taskId,
+        "данные:",
+        formData
+      );
+      console.log("Карточка для обновления:", card);
+      console.log("ID карточки (_id):", card._id);
+      console.log("ID карточки (id):", card.id);
+      const updatedTask = await updateTask(taskId, formData);
+      console.log("Задача успешно обновлена:", updatedTask);
+      console.log("Обновленная задача ID:", updatedTask._id || updatedTask.id);
+
+      // Принудительно обновляем страницу после обновления задачи
+      console.log("Принудительно обновляем страницу после обновления задачи");
+      window.location.reload();
+
+      // Закрываем модальное окно
       onClose();
     } catch (error) {
       console.error("Ошибка обновления задачи:", error);
-      alert("Ошибка при обновлении задачи");
+      console.error("Детали ошибки:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response,
+        status: error.status,
+      });
+      alert(`Ошибка при обновлении задачи: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -191,18 +224,21 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
                 <div
                   className={`categories__theme _orange ${formData.topic === "Web Design" ? "_active-category" : ""}`}
                   onClick={() => handleTopicChange("Web Design")}
+                  style={{ cursor: "pointer" }}
                 >
                   <p className="_orange">Web Design</p>
                 </div>
                 <div
                   className={`categories__theme _green ${formData.topic === "Research" ? "_active-category" : ""}`}
                   onClick={() => handleTopicChange("Research")}
+                  style={{ cursor: "pointer" }}
                 >
                   <p className="_green">Research</p>
                 </div>
                 <div
                   className={`categories__theme _purple ${formData.topic === "Copywriting" ? "_active-category" : ""}`}
                   onClick={() => handleTopicChange("Copywriting")}
+                  style={{ cursor: "pointer" }}
                 >
                   <p className="_purple">Copywriting</p>
                 </div>
