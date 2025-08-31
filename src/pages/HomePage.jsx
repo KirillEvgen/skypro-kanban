@@ -32,13 +32,26 @@ const HomePage = () => {
 
   // Принудительно обновляем выбранную карточку при изменении задач
   useEffect(() => {
+    console.log("=== HomePage: Обновляем выбранную карточку ===");
+    console.log("ID:", id);
+    console.log("Задачи:", tasks);
+    console.log("Количество задач:", tasks.length);
     if (id) {
       const card = getTaskById(id);
-      console.log("Обновляем выбранную карточку:", card);
+      console.log("Найденная карточка:", card);
       setSelectedCard(card);
     } else {
       setSelectedCard(null);
     }
+    console.log("=== Конец обновления карточки ===");
+
+    // Принудительно вызываем перерендер
+    const timeoutId = setTimeout(() => {
+      console.log("=== HomePage: Принудительный перерендер ===");
+      // Это вызовет перерендер компонента
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
   }, [id, tasks, getTaskById]);
 
   const handleCreateNewTask = () => {
@@ -47,8 +60,9 @@ const HomePage = () => {
   };
 
   const handleCloseNewTaskModal = () => {
-    console.log("Закрываем модальное окно создания задачи");
+    console.log("=== HomePage: Закрываем модальное окно создания задачи ===");
     navigate("/");
+    console.log("=== HomePage: Навигация выполнена ===");
   };
 
   const handleCardClick = (card) => {

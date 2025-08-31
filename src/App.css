@@ -1462,16 +1462,20 @@
   gap: 10px;
   justify-content: flex-end;
   margin-top: 30px;
+  flex-wrap: wrap;
 }
 
 .form-edit__cancel,
-.form-edit__save {
+.form-edit__save,
+.form-edit__delete,
+.form-edit__close {
   padding: 12px 24px;
   border: none;
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
+  min-width: 120px;
 }
 
 .form-edit__cancel {
@@ -1493,8 +1497,67 @@
   background-color: #4a4fd8;
 }
 
+.form-edit__delete {
+  background-color: transparent;
+  color: #565eef;
+  border: 1px solid #565eef;
+}
+
+.form-edit__delete:hover {
+  background-color: #f8f9ff;
+}
+
+.form-edit__close {
+  background-color: #565eef;
+  color: white;
+}
+
+.form-edit__close:hover {
+  background-color: #4a4fd8;
+}
+
 .form-edit__cancel:disabled,
-.form-edit__save:disabled {
+.form-edit__save:disabled,
+.form-edit__delete:disabled,
+.form-edit__close:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Стили для кнопок статуса */
+.form-edit__status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.form-edit__status-btn {
+  padding: 8px 16px;
+  border: 1px solid #d4dbe5;
+  border-radius: 20px;
+  background-color: #ffffff;
+  color: #94a6be;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form-edit__status-btn:hover {
+  background-color: #f8f9ff;
+  border-color: #565eef;
+  color: #565eef;
+}
+
+.form-edit__status-btn._active-status {
+  background-color: #94a6be;
+  border-color: #94a6be;
+  color: #ffffff;
+}
+
+.form-edit__status-btn._active-status:hover {
+  background-color: #7a8ba3;
+  border-color: #7a8ba3;
 }

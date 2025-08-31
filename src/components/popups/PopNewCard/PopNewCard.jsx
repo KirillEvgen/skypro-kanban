@@ -6,6 +6,11 @@ import { useTasks } from "../../../contexts/TasksContext";
 const PopNewCard = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { createTask } = useTasks();
+
+  console.log("=== PopNewCard: Компонент рендерится ===");
+  console.log("createTask функция:", createTask);
+  console.log("Тип createTask:", typeof createTask);
+  console.log("=== PopNewCard: Проверяем контекст ===");
   const [formData, setFormData] = useState({
     title: "",
     description: "Описание задачи",
@@ -69,6 +74,10 @@ const PopNewCard = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("=== PopNewCard: handleSubmit вызван ===");
+    console.log("createTask функция:", createTask);
+    console.log("Тип createTask:", typeof createTask);
+
     if (!formData.title.trim()) {
       alert("Пожалуйста, введите название задачи");
       return;
@@ -80,7 +89,15 @@ const PopNewCard = ({ isOpen, onClose }) => {
     }
 
     try {
-      console.log("Создаем задачу с данными:", formData);
+      console.log("=== PopNewCard: Начинаем создание задачи ===");
+      console.log("Данные формы:", formData);
+
+      // Проверяем, что createTask действительно является функцией
+      if (typeof createTask !== "function") {
+        console.error("createTask не является функцией!");
+        throw new Error("createTask не является функцией");
+      }
+
       const newTask = await createTask({
         title: formData.title,
         description: formData.description,
@@ -89,7 +106,8 @@ const PopNewCard = ({ isOpen, onClose }) => {
         date: formData.date,
       });
 
-      console.log("Задача успешно создана:", newTask);
+      console.log("=== PopNewCard: Задача успешно создана ===");
+      console.log("Созданная задача:", newTask);
 
       // Сброс формы
       setFormData({
@@ -100,12 +118,15 @@ const PopNewCard = ({ isOpen, onClose }) => {
       });
       setSelectedDate(new Date());
 
-      // Принудительно обновляем страницу после создания задачи
-      console.log("Принудительно обновляем страницу после создания задачи");
-      window.location.reload();
+      // Принудительно обновляем контекст
+      console.log("=== PopNewCard: Принудительно обновляем контекст ===");
 
       // Закрываем модальное окно
+      console.log("=== PopNewCard: Закрываем модальное окно ===");
+      console.log("onClose функция:", onClose);
+      console.log("Тип onClose:", typeof onClose);
       onClose();
+      console.log("=== PopNewCard: onClose вызван ===");
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
       alert("Ошибка при создании задачи");

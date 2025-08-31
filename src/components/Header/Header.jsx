@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTasks } from "../../contexts/TasksContext";
 import {
   HeaderContainer,
   HeaderBlock,
@@ -20,6 +21,7 @@ const Header = ({ onCreateTask }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { tasks } = useTasks();
 
   // Используем данные пользователя из контекста или дефолтные значения
   const userData = user || {

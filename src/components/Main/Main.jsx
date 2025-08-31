@@ -19,16 +19,42 @@ const Main = ({ onCardClick }) => {
     loadTasks,
   } = useTasks();
 
+  console.log("=== Main компонент рендерится ===");
+  console.log("Количество задач:", tasks.length);
+  console.log("Задачи:", tasks);
+  console.log("Загрузка:", loading);
+  console.log("Ошибка:", error);
+
   // Загружаем задачи при монтировании компонента
   useEffect(() => {
     console.log("Main компонент смонтирован, загружаем задачи...");
     loadTasks();
   }, []); // Убираем loadTasks из зависимостей
 
+  // Принудительно обновляем при изменении задач
+  useEffect(() => {
+    console.log("=== Main: Задачи изменились, принудительно обновляем ===");
+    console.log("Новые задачи:", tasks);
+    console.log("Количество задач:", tasks.length);
+    console.log(
+      "Статусы задач:",
+      tasks.map((t) => t.status)
+    );
+
+    // Принудительно вызываем перерендер
+    const timeoutId = setTimeout(() => {
+      console.log("=== Main: Принудительный перерендер ===");
+      // Это вызовет перерендер компонента
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [tasks]);
+
   // Логируем изменения задач
   useEffect(() => {
-    console.log("Задачи изменились:", tasks);
+    console.log("=== Main: Задачи изменились ===");
     console.log("Количество задач:", tasks.length);
+    console.log("Задачи:", tasks);
     console.log(
       "Статусы задач:",
       tasks.map((t) => ({
@@ -37,6 +63,7 @@ const Main = ({ onCardClick }) => {
         status: t.status,
       }))
     );
+    console.log("=== Конец лога Main ===");
   }, [tasks]);
 
   const columnTitles = [
@@ -173,9 +200,7 @@ const Main = ({ onCardClick }) => {
                   Получены некорректные данные задач. Попробуйте обновить
                   страницу.
                 </p>
-                <button onClick={() => window.location.reload()}>
-                  Обновить страницу
-                </button>
+                <button onClick={loadTasks}>Обновить данные</button>
               </div>
             </MainContent>
           </MainBlock>
@@ -233,30 +258,47 @@ const Main = ({ onCardClick }) => {
                       borderRadius: "5px",
                       cursor: "pointer",
                       fontSize: "14px",
+                      marginRight: "10px",
                     }}
                   >
                     Загрузить задачи
+                  </button>
+                  <button
+                    onClick={async () => {
+                      console.log("=== ТЕСТ: Создаем тестовую задачу ===");
+                      await createTask({
+                        title: "Тестовая задача " + new Date().getTime(),
+                        description: "Описание тестовой задачи",
+                        topic: "Web Design",
+                        status: "Без статуса",
+                        date: new Date().toISOString().split("T")[0],
+                      });
+                    }}
+                    style={{
+                      padding: "10px 20px",
+                      backgroundColor: "#dc3545",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                    }}
+                  >
+                    ТЕСТ: Создать задачу
                   </button>
                 </div>
               </div>
             ) : (
               columnTitles.map((title) => {
                 const tasksInColumn = getTasksByStatus(title);
+                console.log(`=== Main: Колонка "${title}" ===`);
                 console.log(
-                  `Колонка "${title}":`,
-                  tasksInColumn.length,
-                  "задач"
-                );
-                console.log(`Задачи в колонке "${title}":`, tasksInColumn);
-                console.log(
-                  `Количество задач в колонке "${title}":`,
+                  `Количество задач в колонке:`,
                   tasksInColumn.length
                 );
+                console.log(`Задачи в колонке:`, tasksInColumn);
                 return (
-                  <Column
-                    key={`${title}-${tasksInColumn.length}`}
-                    title={title}
-                  >
+                  <Column key={title} title={title}>
                     {tasksInColumn.map((card) => {
                       console.log("Рендерим карточку:", card);
                       return (

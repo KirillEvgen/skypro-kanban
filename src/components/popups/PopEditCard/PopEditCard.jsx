@@ -5,7 +5,13 @@ import { useTasks } from "../../../contexts/TasksContext";
 
 const PopEditCard = ({ isOpen, card, onClose }) => {
   const navigate = useNavigate();
-  const { updateTask } = useTasks();
+  const { updateTask, deleteTask } = useTasks();
+
+  console.log("=== PopEditCard: Компонент рендерится ===");
+  console.log("isOpen:", isOpen);
+  console.log("card:", card);
+  console.log("updateTask функция:", updateTask);
+  console.log("Тип updateTask:", typeof updateTask);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -116,12 +122,15 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
       console.log("Задача успешно обновлена:", updatedTask);
       console.log("Обновленная задача ID:", updatedTask._id || updatedTask.id);
 
-      // Принудительно обновляем страницу после обновления задачи
-      console.log("Принудительно обновляем страницу после обновления задачи");
-      window.location.reload();
+      // Принудительно обновляем контекст
+      console.log("=== PopEditCard: Принудительно обновляем контекст ===");
 
       // Закрываем модальное окно
+      console.log("=== PopEditCard: Закрываем модальное окно ===");
+      console.log("onClose функция:", onClose);
+      console.log("Тип onClose:", typeof onClose);
       onClose();
+      console.log("=== PopEditCard: onClose вызван ===");
     } catch (error) {
       console.error("Ошибка обновления задачи:", error);
       console.error("Детали ошибки:", {
@@ -193,22 +202,44 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
                   ></textarea>
                 </div>
                 <div className="form-edit__block">
-                  <label htmlFor="editStatus" className="subttl">
-                    Статус
-                  </label>
-                  <select
-                    className="form-edit__select"
-                    name="status"
-                    id="editStatus"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                  >
-                    <option value="Без статуса">Без статуса</option>
-                    <option value="Нужно сделать">Нужно сделать</option>
-                    <option value="В работе">В работе</option>
-                    <option value="Тестирование">Тестирование</option>
-                    <option value="Готово">Готово</option>
-                  </select>
+                  <label className="subttl">Статус</label>
+                  <div className="form-edit__status-buttons">
+                    <button
+                      type="button"
+                      className={`form-edit__status-btn ${formData.status === "Без статуса" ? "_active-status" : ""}`}
+                      onClick={() => handleStatusChange("Без статуса")}
+                    >
+                      Без статуса
+                    </button>
+                    <button
+                      type="button"
+                      className={`form-edit__status-btn ${formData.status === "Нужно сделать" ? "_active-status" : ""}`}
+                      onClick={() => handleStatusChange("Нужно сделать")}
+                    >
+                      Нужно сделать
+                    </button>
+                    <button
+                      type="button"
+                      className={`form-edit__status-btn ${formData.status === "В работе" ? "_active-status" : ""}`}
+                      onClick={() => handleStatusChange("В работе")}
+                    >
+                      В работе
+                    </button>
+                    <button
+                      type="button"
+                      className={`form-edit__status-btn ${formData.status === "Тестирование" ? "_active-status" : ""}`}
+                      onClick={() => handleStatusChange("Тестирование")}
+                    >
+                      Тестирование
+                    </button>
+                    <button
+                      type="button"
+                      className={`form-edit__status-btn ${formData.status === "Готово" ? "_active-status" : ""}`}
+                      onClick={() => handleStatusChange("Готово")}
+                    >
+                      Готово
+                    </button>
+                  </div>
                 </div>
               </form>
               <Calendar
@@ -246,18 +277,45 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
             </div>
             <div className="pop-edit-card__btn-group">
               <button
-                className="form-edit__cancel _btn-bor _hover03"
-                onClick={onClose}
-                disabled={isSubmitting}
-              >
-                Отмена
-              </button>
-              <button
                 className="form-edit__save _btn-bg _hover01"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Сохранение..." : "Сохранить изменения"}
+                {isSubmitting ? "Сохранение..." : "Сохранить"}
+              </button>
+              <button
+                className="form-edit__cancel _btn-bor _hover03"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Отменить
+              </button>
+              <button
+                className="form-edit__delete _btn-bor _hover03"
+                onClick={async () => {
+                  if (
+                    window.confirm("Вы уверены, что хотите удалить эту задачу?")
+                  ) {
+                    try {
+                      const taskId = card._id || card.id;
+                      await deleteTask(taskId);
+                      onClose();
+                    } catch (error) {
+                      console.error("Ошибка удаления задачи:", error);
+                      alert("Ошибка при удалении задачи");
+                    }
+                  }
+                }}
+                disabled={isSubmitting}
+              >
+                Удалить задачу
+              </button>
+              <button
+                className="form-edit__close _btn-bg _hover01"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Закрыть
               </button>
             </div>
           </div>

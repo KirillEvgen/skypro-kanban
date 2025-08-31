@@ -230,9 +230,14 @@ export const tasksAPI = {
       }
 
       const data = await response.json();
-      console.log("Ответ от API создания задачи:", data);
+      console.log("=== API: Ответ от создания задачи ===");
+      console.log("Данные:", data);
       console.log("Тип данных:", typeof data);
       console.log("Структура данных:", JSON.stringify(data, null, 2));
+      console.log("Проверяем наличие ID:", data._id || data.id);
+      console.log("Проверяем наличие title:", data.title);
+      console.log("Проверяем наличие status:", data.status);
+      console.log("=== Конец ответа API ===");
       return data;
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
