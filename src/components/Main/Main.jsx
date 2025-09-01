@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Column from "../Column/Column";
 import Card from "../Card/Card";
@@ -19,9 +19,21 @@ const Main = ({ onCardClick }) => {
     loadTasks,
   } = useTasks();
 
+  // Получаем массив задач из правильной структуры
+  const tasksArray = useMemo(() => {
+    if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
+      return tasks.tasks;
+    } else if (Array.isArray(tasks)) {
+      return tasks;
+    } else {
+      console.warn("Задачи не являются массивом:", tasks);
+      return [];
+    }
+  }, [tasks]);
+
   console.log("=== Main компонент рендерится ===");
-  console.log("Количество задач:", tasks.length);
-  console.log("Задачи:", tasks);
+  console.log("Количество задач:", tasksArray.length);
+  console.log("Задачи:", tasksArray);
   console.log("Загрузка:", loading);
   console.log("Ошибка:", error);
 
@@ -34,11 +46,12 @@ const Main = ({ onCardClick }) => {
   // Принудительно обновляем при изменении задач
   useEffect(() => {
     console.log("=== Main: Задачи изменились, принудительно обновляем ===");
-    console.log("Новые задачи:", tasks);
-    console.log("Количество задач:", tasks.length);
+
+    console.log("Новые задачи:", tasksArray);
+    console.log("Количество задач:", tasksArray.length);
     console.log(
       "Статусы задач:",
-      tasks.map((t) => t.status)
+      tasksArray.map((t) => t.status)
     );
 
     // Принудительно вызываем перерендер
@@ -53,11 +66,12 @@ const Main = ({ onCardClick }) => {
   // Логируем изменения задач
   useEffect(() => {
     console.log("=== Main: Задачи изменились ===");
-    console.log("Количество задач:", tasks.length);
-    console.log("Задачи:", tasks);
+
+    console.log("Количество задач:", tasksArray.length);
+    console.log("Задачи:", tasksArray);
     console.log(
       "Статусы задач:",
-      tasks.map((t) => ({
+      tasksArray.map((t) => ({
         id: t._id || t.id,
         title: t.title,
         status: t.status,
@@ -170,18 +184,22 @@ const Main = ({ onCardClick }) => {
 
   // Отладочная информация
   console.log("=== ОТЛАДКА MAIN КОМПОНЕНТА ===");
-  console.log("Всего задач:", tasks?.length || 0);
-  console.log("Задачи:", tasks);
+
+  console.log("Всего задач:", tasksArray?.length || 0);
+  console.log("Задачи:", tasksArray);
   console.log("Тип задач:", typeof tasks);
-  console.log("Является ли массивом:", Array.isArray(tasks));
-  console.log("Статусы всех задач:", tasks?.map((task) => task.status) || []);
+  console.log("Является ли массивом:", Array.isArray(tasksArray));
+  console.log(
+    "Статусы всех задач:",
+    tasksArray?.map((task) => task.status) || []
+  );
   console.log("Loading:", loading);
   console.log("Error:", error);
   console.log("=== КОНЕЦ ОТЛАДКИ ===");
 
   // Защита от случаев, когда tasks не является массивом
-  if (!Array.isArray(tasks)) {
-    console.error("Ошибка: tasks не является массивом:", tasks);
+  if (!Array.isArray(tasksArray)) {
+    console.error("Ошибка: tasks не является массивом:", tasksArray);
     return (
       <MainContainer>
         <Container>
@@ -210,7 +228,7 @@ const Main = ({ onCardClick }) => {
   }
 
   // Показываем все уникальные статусы
-  const uniqueStatuses = [...new Set(tasks.map((task) => task.status))];
+  const uniqueStatuses = [...new Set(tasksArray.map((task) => task.status))];
   console.log("Уникальные статусы в задачах:", uniqueStatuses);
 
   return (
@@ -218,7 +236,7 @@ const Main = ({ onCardClick }) => {
       <Container>
         <MainBlock>
           <MainContent>
-            {tasks.length === 0 ? (
+            {tasksArray.length === 0 ? (
               <div
                 style={{
                   textAlign: "center",

@@ -161,13 +161,13 @@ export const tasksAPI = {
       // Проверяем, есть ли массив задач в ответе
       if (data && data.tasks && Array.isArray(data.tasks)) {
         console.log("Найден массив задач в data.tasks:", data.tasks);
-        return data.tasks;
+        return data; // Возвращаем весь объект { tasks: [...] }
       } else if (Array.isArray(data)) {
         console.log("Данные уже являются массивом:", data);
-        return data;
+        return { tasks: data }; // Оборачиваем в объект
       } else {
-        console.log("Неожиданная структура данных, возвращаем пустой массив");
-        return [];
+        console.log("Неожиданная структура данных, возвращаем пустой объект");
+        return { tasks: [] };
       }
     } catch (error) {
       console.error("Ошибка получения задач:", error);
@@ -196,6 +196,14 @@ export const tasksAPI = {
       }
 
       const data = await response.json();
+      console.log("Ответ от API получения задачи:", data);
+
+      // Проверяем, что данные содержат необходимые поля
+      if (!data || typeof data !== "object") {
+        console.error("API вернул некорректные данные:", data);
+        throw new Error("Некорректный ответ от API");
+      }
+
       return data;
     } catch (error) {
       console.error("Ошибка получения задачи:", error);
@@ -238,6 +246,40 @@ export const tasksAPI = {
       console.log("Проверяем наличие title:", data.title);
       console.log("Проверяем наличие status:", data.status);
       console.log("=== Конец ответа API ===");
+
+      // Проверяем, что данные содержат необходимые поля
+      if (!data || typeof data !== "object") {
+        console.error("API вернул некорректные данные:", data);
+        throw new Error("Некорректный ответ от API");
+      }
+
+      // Если API вернул список задач, ищем созданную задачу по title и description
+      if (data.tasks && Array.isArray(data.tasks)) {
+        console.log("API вернул список задач, ищем созданную задачу");
+        const createdTask = data.tasks.find(
+          (task) =>
+            task.title === taskData.title &&
+            task.description === taskData.description
+        );
+
+        if (createdTask) {
+          console.log("Найдена созданная задача:", createdTask);
+          return createdTask;
+        } else {
+          console.error(
+            "Не удалось найти созданную задачу в списке:",
+            data.tasks
+          );
+          throw new Error("API не вернул созданную задачу");
+        }
+      }
+
+      // Если API вернул одну задачу, проверяем наличие обязательных полей
+      if (!data._id && !data.id) {
+        console.error("API не вернул ID задачи:", data);
+        throw new Error("API не вернул ID задачи");
+      }
+
       return data;
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
@@ -290,6 +332,34 @@ export const tasksAPI = {
         throw new Error("Некорректный ответ от API");
       }
 
+      // Если API вернул список задач, ищем обновленную задачу по ID
+      if (data.tasks && Array.isArray(data.tasks)) {
+        console.log(
+          "API вернул список задач, ищем обновленную задачу по ID:",
+          id
+        );
+        const updatedTask = data.tasks.find(
+          (task) => (task._id || task.id) === id
+        );
+
+        if (updatedTask) {
+          console.log("Найдена обновленная задача:", updatedTask);
+          return updatedTask;
+        } else {
+          console.error(
+            "Не удалось найти обновленную задачу в списке:",
+            data.tasks
+          );
+          throw new Error("API не вернул обновленную задачу");
+        }
+      }
+
+      // Если API вернул одну задачу, проверяем наличие ID
+      if (!data._id && !data.id) {
+        console.error("API не вернул ID задачи:", data);
+        throw new Error("API не вернул ID задачи");
+      }
+
       return data;
     } catch (error) {
       console.error("Ошибка обновления задачи:", error);
@@ -318,6 +388,14 @@ export const tasksAPI = {
       }
 
       const data = await response.json();
+      console.log("Ответ от API удаления задачи:", data);
+
+      // Проверяем, что данные содержат необходимые поля
+      if (!data || typeof data !== "object") {
+        console.error("API вернул некорректные данные:", data);
+        throw new Error("Некорректный ответ от API");
+      }
+
       return data;
     } catch (error) {
       console.error("Ошибка удаления задачи:", error);

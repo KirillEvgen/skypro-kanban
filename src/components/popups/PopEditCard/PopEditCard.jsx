@@ -151,6 +151,19 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
     }
   };
 
+  const getTopicClass = (topic) => {
+    switch (topic) {
+      case "Web Design":
+        return "_orange";
+      case "Research":
+        return "_green";
+      case "Copywriting":
+        return "_purple";
+      default:
+        return "";
+    }
+  };
+
   // Перемещаем условный рендеринг в конец, после всех вызовов хуков
   if (!isOpen || !card) {
     return null;
@@ -168,26 +181,79 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
             <a href="#" className="pop-edit-card__close" onClick={onClose}>
               &#10006;
             </a>
-            <div className="pop-edit-card__wrap">
-              <form
-                className="pop-edit-card__form form-edit"
-                onSubmit={handleSubmit}
-              >
-                <div className="form-edit__block">
-                  <label htmlFor="editTitle" className="subttl">
-                    Название задачи
-                  </label>
-                  <input
-                    className="form-edit__input"
-                    type="text"
-                    name="title"
-                    id="editTitle"
-                    placeholder="Введите название задачи..."
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    autoFocus
-                  />
+
+            {/* Название задачи с тегом категории */}
+            <div className="form-edit__block">
+              <div className="form-edit__header">
+                <label htmlFor="editTitle" className="subttl">
+                  Название задачи
+                </label>
+                <div
+                  className={`categories__theme ${getTopicClass(formData.topic)}`}
+                >
+                  <p className={getTopicClass(formData.topic)}>
+                    {formData.topic}
+                  </p>
                 </div>
+              </div>
+              <input
+                className="form-edit__input"
+                type="text"
+                name="title"
+                id="editTitle"
+                placeholder="Введите название задачи..."
+                value={formData.title}
+                onChange={handleInputChange}
+                autoFocus
+              />
+            </div>
+
+            {/* Статус */}
+            <div className="form-edit__block">
+              <label className="subttl">Статус</label>
+              <div className="form-edit__status-buttons">
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Без статуса" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Без статуса")}
+                >
+                  Без статуса
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Нужно сделать" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Нужно сделать")}
+                >
+                  Нужно сделать
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "В работе" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("В работе")}
+                >
+                  В работе
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Тестирование" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Тестирование")}
+                >
+                  Тестирование
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Готово" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Готово")}
+                >
+                  Готово
+                </button>
+              </div>
+            </div>
+
+            {/* Основной контент: описание слева, календарь справа */}
+            <div className="pop-edit-card__wrap">
+              {/* Описание задачи */}
+              <div className="pop-edit-card__form">
                 <div className="form-edit__block">
                   <label htmlFor="editDescription" className="subttl">
                     Описание задачи
@@ -201,54 +267,21 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
                     onChange={handleInputChange}
                   ></textarea>
                 </div>
-                <div className="form-edit__block">
-                  <label className="subttl">Статус</label>
-                  <div className="form-edit__status-buttons">
-                    <button
-                      type="button"
-                      className={`form-edit__status-btn ${formData.status === "Без статуса" ? "_active-status" : ""}`}
-                      onClick={() => handleStatusChange("Без статуса")}
-                    >
-                      Без статуса
-                    </button>
-                    <button
-                      type="button"
-                      className={`form-edit__status-btn ${formData.status === "Нужно сделать" ? "_active-status" : ""}`}
-                      onClick={() => handleStatusChange("Нужно сделать")}
-                    >
-                      Нужно сделать
-                    </button>
-                    <button
-                      type="button"
-                      className={`form-edit__status-btn ${formData.status === "В работе" ? "_active-status" : ""}`}
-                      onClick={() => handleStatusChange("В работе")}
-                    >
-                      В работе
-                    </button>
-                    <button
-                      type="button"
-                      className={`form-edit__status-btn ${formData.status === "Тестирование" ? "_active-status" : ""}`}
-                      onClick={() => handleStatusChange("Тестирование")}
-                    >
-                      Тестирование
-                    </button>
-                    <button
-                      type="button"
-                      className={`form-edit__status-btn ${formData.status === "Готово" ? "_active-status" : ""}`}
-                      onClick={() => handleStatusChange("Готово")}
-                    >
-                      Готово
-                    </button>
-                  </div>
-                </div>
-              </form>
-              <Calendar
-                current={false}
-                active={false}
-                selectedDate={selectedDate}
-                onDateSelect={handleDateChange}
-              />
+              </div>
+
+              {/* Календарь */}
+              <div className="pop-edit-card__calendar">
+                <label className="subttl">Даты</label>
+                <Calendar
+                  current={false}
+                  active={false}
+                  selectedDate={selectedDate}
+                  onDateSelect={handleDateChange}
+                />
+              </div>
             </div>
+
+            {/* Категория */}
             <div className="pop-edit-card__categories categories">
               <p className="categories__p subttl">Категория</p>
               <div className="categories__themes">
@@ -275,6 +308,8 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
                 </div>
               </div>
             </div>
+
+            {/* Кнопки действий */}
             <div className="pop-edit-card__btn-group">
               <button
                 className="form-edit__save _btn-bg _hover01"

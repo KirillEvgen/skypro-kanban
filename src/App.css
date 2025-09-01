@@ -1395,13 +1395,24 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 20px;
 }
 
 .pop-edit-card__form {
   max-width: 370px;
   width: 100%;
   display: block;
-  margin-bottom: 20px;
+}
+
+.pop-edit-card__calendar {
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pop-edit-card__calendar .subttl {
+  margin-bottom: 14px;
 }
 
 .form-edit__block {
@@ -1560,4 +1571,50 @@
 .form-edit__status-btn._active-status:hover {
   background-color: #7a8ba3;
   border-color: #7a8ba3;
+}
+
+/* Дополнительные стили для нового макета редактирования */
+.form-edit__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.form-edit__header .subttl {
+  margin-bottom: 0;
+}
+
+.form-edit__header .categories__theme {
+  margin: 0;
+  opacity: 1;
+}
+
+.pop-edit-card__wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.pop-edit-card__form {
+  max-width: 370px;
+  width: 100%;
+  display: block;
+}
+
+.pop-edit-card__calendar {
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pop-edit-card__calendar .subttl {
+  margin-bottom: 14px;
+}
+
+.form-edit__status-btn {
+  min-width: 100px;
+  text-align: center;
 }

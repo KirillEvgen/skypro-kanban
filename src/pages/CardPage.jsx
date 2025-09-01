@@ -178,7 +178,7 @@ const CardPage = () => {
     } else {
       setError("Задача не найдена");
     }
-  }, [id, getTaskById, tasks, loadTasks]);
+  }, [id, getTaskById, tasks]); // Убираем loadTasks из зависимостей
 
   const getTopicClass = (topic) => {
     return topic.toLowerCase().replace(" ", "-");

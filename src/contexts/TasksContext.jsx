@@ -19,7 +19,7 @@ export const useTasks = () => {
 };
 
 export const TasksProvider = ({ children }) => {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState({ tasks: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,97 +28,7 @@ export const TasksProvider = ({ children }) => {
   console.log("Загрузка:", loading);
   console.log("Ошибка:", error);
 
-  // Загрузка задач при инициализации
-  useEffect(() => {
-    // Проверяем наличие токена для определения авторизации
-    const token = localStorage.getItem("token");
-    if (token) {
-      loadTasks();
-    }
-  }, []);
-
-  // Слушаем изменения в localStorage и кастомные события для синхронизации с AuthContext
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === "token") {
-        if (e.newValue) {
-          loadTasks();
-        } else {
-          setTasks([]);
-        }
-      }
-    };
-
-    const handleAuthStateChange = (e) => {
-      if (e.detail.isAuth) {
-        loadTasks();
-      } else {
-        setTasks([]);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("authStateChanged", handleAuthStateChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("authStateChanged", handleAuthStateChange);
-    };
-  }, []);
-
-  const loadTasks = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("Начинаем загрузку задач...");
-      const data = await tasksAPI.getTasks();
-      console.log("Полученные задачи:", data);
-
-      // Убеждаемся, что мы всегда работаем с массивом
-      let tasksArray = [];
-      if (Array.isArray(data)) {
-        tasksArray = data;
-      } else if (data && data.tasks && Array.isArray(data.tasks)) {
-        tasksArray = data.tasks;
-      } else {
-        console.warn(
-          "Неожиданная структура данных, устанавливаем пустой массив"
-        );
-        tasksArray = [];
-      }
-
-      // Если задач нет, создаем тестовые задачи
-      if (tasksArray.length === 0) {
-        console.log("Задач нет, создаем тестовые данные...");
-        await createTestTasks();
-      } else {
-        setTasks(tasksArray);
-      }
-    } catch (err) {
-      const errorMessage = err.message || "Ошибка при загрузке задач";
-      setError(errorMessage);
-      console.error("Ошибка загрузки задач:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Логируем изменения задач
-  useEffect(() => {
-    console.log("=== TasksContext: useEffect - Задачи изменились ===");
-    console.log("Количество задач:", tasks.length);
-    console.log("Задачи:", tasks);
-    console.log(
-      "Статусы задач:",
-      tasks.map((t) => ({
-        id: t._id || t.id,
-        title: t.title,
-        status: t.status,
-      }))
-    );
-    console.log("=== Конец useEffect ===");
-  }, [tasks]);
-
+  // Сначала определяем все функции
   const createTestTasks = useCallback(async () => {
     try {
       console.log("Создаем тестовые задачи...");
@@ -147,12 +57,59 @@ export const TasksProvider = ({ children }) => {
       }
 
       console.log("Всего создано тестовых задач:", createdTasks.length);
-      setTasks(createdTasks);
+      // Сохраняем в том же формате, что и API
+      if (createdTasks.length > 0) {
+        setTasks({ tasks: createdTasks });
+      } else {
+        setTasks({ tasks: [] });
+      }
     } catch (error) {
       console.error("Ошибка создания тестовых задач:", error);
       setError("Ошибка создания тестовых задач");
     }
   }, []);
+
+  const loadTasks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log("Начинаем загрузку задач...");
+      const data = await tasksAPI.getTasks();
+      console.log("Полученные задачи:", data);
+
+      // Убеждаемся, что мы всегда работаем с массивом
+      let tasksArray = [];
+      if (Array.isArray(data)) {
+        tasksArray = data;
+      } else if (data && data.tasks && Array.isArray(data.tasks)) {
+        tasksArray = data.tasks;
+      } else {
+        console.warn(
+          "Неожиданная структура данных, устанавливаем пустой массив"
+        );
+        tasksArray = [];
+      }
+
+      // Если задач нет, создаем тестовые задачи
+      if (tasksArray.length === 0) {
+        console.log("Задач нет, создаем тестовые данные...");
+        await createTestTasks();
+      } else {
+        // Сохраняем данные в том же формате, что приходят от API
+        if (data && data.tasks && Array.isArray(data.tasks)) {
+          setTasks(data); // Сохраняем весь объект { tasks: [...] }
+        } else {
+          setTasks({ tasks: tasksArray }); // Оборачиваем массив в объект
+        }
+      }
+    } catch (err) {
+      const errorMessage = err.message || "Ошибка при загрузке задач";
+      setError(errorMessage);
+      console.error("Ошибка загрузки задач:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [createTestTasks]);
 
   const createTask = useCallback(async (taskData) => {
     console.log("=== TasksContext: ФУНКЦИЯ createTask ВЫЗВАНА ===");
@@ -167,25 +124,29 @@ export const TasksProvider = ({ children }) => {
       console.log("=== TasksContext: Задача создана на сервере ===");
       console.log("Ответ от сервера:", newTask);
 
-      // Немедленно обновляем состояние контекста
+      // Обновляем состояние контекста
       setTasks((prevTasks) => {
         console.log("=== TasksContext: Обновляем состояние после создания ===");
         console.log("Предыдущие задачи:", prevTasks);
         console.log("Новая задача:", newTask);
 
-        const updatedTasks = [...prevTasks, newTask];
-        console.log("Обновленный список задач:", updatedTasks);
-        return updatedTasks;
-      });
+        // Проверяем структуру данных
+        let tasksArray = prevTasks;
+        if (prevTasks && prevTasks.tasks && Array.isArray(prevTasks.tasks)) {
+          tasksArray = prevTasks.tasks;
+        } else if (Array.isArray(prevTasks)) {
+          tasksArray = prevTasks;
+        }
 
-      // Принудительно обновляем состояние через setTimeout
-      setTimeout(() => {
-        setTasks((currentTasks) => {
-          console.log("=== TasksContext: Принудительное обновление ===");
-          console.log("Текущие задачи:", currentTasks);
-          return [...currentTasks];
-        });
-      }, 0);
+        const updatedTasks = [...tasksArray, newTask];
+        console.log("Обновленный список задач:", updatedTasks);
+
+        // Возвращаем ту же структуру, что была в prevTasks
+        if (prevTasks && prevTasks.tasks && Array.isArray(prevTasks.tasks)) {
+          return { ...prevTasks, tasks: updatedTasks };
+        }
+        return { tasks: updatedTasks };
+      });
 
       console.log("=== TasksContext: Состояние обновлено ===");
       return newTask;
@@ -211,26 +172,22 @@ export const TasksProvider = ({ children }) => {
       console.log("=== TasksContext: Задача обновлена на сервере ===");
       console.log("Обновленная задача:", updatedTask);
 
-      // Немедленно обновляем состояние контекста
+      // Обновляем состояние контекста
       setTasks((prevTasks) => {
         console.log(
           "=== TasksContext: Обновляем состояние после обновления ==="
         );
         console.log("Предыдущие задачи:", prevTasks);
 
-        const updatedTasks = prevTasks.map((task) => {
+        // Получаем массив задач из структуры
+        const tasksArray = prevTasks.tasks || [];
+        console.log("Массив задач для обновления:", tasksArray);
+
+        const updatedTasks = tasksArray.map((task) => {
           const taskId = task._id || task.id;
-          const updateId = id;
 
-          // Проверяем совпадение по ID
-          const isMatch =
-            taskId === updateId ||
-            taskId === parseInt(updateId) ||
-            taskId === updateId.toString() ||
-            (typeof taskId === "string" && taskId === updateId.toString()) ||
-            (typeof updateId === "string" && updateId === taskId.toString());
-
-          if (isMatch) {
+          // Простая проверка совпадения по ID
+          if (taskId === id) {
             console.log("Обновляем задачу в контексте:", taskId);
             return updatedTask;
           }
@@ -238,19 +195,10 @@ export const TasksProvider = ({ children }) => {
         });
 
         console.log("Обновленный список задач:", updatedTasks);
-        return updatedTasks;
-      });
 
-      // Принудительно обновляем состояние через setTimeout
-      setTimeout(() => {
-        setTasks((currentTasks) => {
-          console.log(
-            "=== TasksContext: Принудительное обновление после update ==="
-          );
-          console.log("Текущие задачи:", currentTasks);
-          return [...currentTasks];
-        });
-      }, 0);
+        // Возвращаем обновленную структуру
+        return { ...prevTasks, tasks: updatedTasks };
+      });
 
       console.log("=== TasksContext: Состояние обновлено ===");
       return updatedTask;
@@ -276,12 +224,20 @@ export const TasksProvider = ({ children }) => {
       await tasksAPI.deleteTask(id);
       console.log("=== TasksContext: Задача удалена на сервере ===");
 
-      // Немедленно обновляем состояние контекста
+      // Обновляем состояние контекста
       setTasks((prevTasks) => {
         console.log("=== TasksContext: Обновляем состояние после удаления ===");
         console.log("Предыдущие задачи:", prevTasks);
 
-        const updatedTasks = prevTasks.filter((task) => {
+        // Проверяем структуру данных
+        let tasksArray = prevTasks;
+        if (prevTasks && prevTasks.tasks && Array.isArray(prevTasks.tasks)) {
+          tasksArray = prevTasks.tasks;
+        } else if (Array.isArray(prevTasks)) {
+          tasksArray = prevTasks;
+        }
+
+        const updatedTasks = tasksArray.filter((task) => {
           const taskId = task._id || task.id;
           const deleteId = id;
           const shouldKeep =
@@ -294,19 +250,13 @@ export const TasksProvider = ({ children }) => {
         });
 
         console.log("Обновленный список задач:", updatedTasks);
-        return updatedTasks;
-      });
 
-      // Принудительно обновляем состояние через setTimeout
-      setTimeout(() => {
-        setTasks((currentTasks) => {
-          console.log(
-            "=== TasksContext: Принудительное обновление после delete ==="
-          );
-          console.log("Текущие задачи:", currentTasks);
-          return [...currentTasks];
-        });
-      }, 0);
+        // Возвращаем ту же структуру, что была в prevTasks
+        if (prevTasks && prevTasks.tasks && Array.isArray(prevTasks.tasks)) {
+          return { ...prevTasks, tasks: updatedTasks };
+        }
+        return { tasks: updatedTasks };
+      });
 
       console.log("=== TasksContext: Состояние обновлено ===");
     } catch (err) {
@@ -324,8 +274,17 @@ export const TasksProvider = ({ children }) => {
       console.log("Поиск задачи по ID:", id, "тип:", typeof id);
       console.log("Все задачи:", tasks);
 
+      // Получаем массив задач из правильной структуры
+      let tasksArray = tasks;
+      if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
+        tasksArray = tasks.tasks;
+      } else if (!Array.isArray(tasks)) {
+        console.warn("Задачи не являются массивом:", tasks);
+        return null;
+      }
+
       // Ищем по _id (строка) или id (число)
-      const foundTask = tasks.find((task) => {
+      const foundTask = tasksArray.find((task) => {
         console.log("Проверяем задачу:", task);
         console.log("task._id:", task._id, "task.id:", task.id);
 
@@ -361,9 +320,19 @@ export const TasksProvider = ({ children }) => {
         `=== TasksContext: Фильтрация задач по статусу "${status}" ===`
       );
       console.log("Все задачи для фильтрации:", tasks);
-      console.log("Количество задач:", tasks.length);
 
-      const filteredTasks = tasks.filter((task) => {
+      // Получаем массив задач из правильной структуры
+      let tasksArray = tasks;
+      if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
+        tasksArray = tasks.tasks;
+      } else if (!Array.isArray(tasks)) {
+        console.warn("Задачи не являются массивом:", tasks);
+        return [];
+      }
+
+      console.log("Количество задач:", tasksArray.length);
+
+      const filteredTasks = tasksArray.filter((task) => {
         const matches = task.status === status;
         if (matches) {
           console.log(
@@ -387,6 +356,72 @@ export const TasksProvider = ({ children }) => {
   const clearError = useCallback(() => {
     setError(null);
   }, []);
+
+  // Теперь определяем useEffect после всех функций
+  useEffect(() => {
+    // Проверяем наличие токена для определения авторизации
+    const token = localStorage.getItem("token");
+    if (token) {
+      loadTasks();
+    }
+  }, [loadTasks]);
+
+  // Слушаем изменения в localStorage и кастомные события для синхронизации с AuthContext
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "token") {
+        if (e.newValue) {
+          loadTasks();
+        } else {
+          setTasks({ tasks: [] });
+        }
+      }
+    };
+
+    const handleAuthStateChange = (e) => {
+      if (e.detail.isAuth) {
+        loadTasks();
+      } else {
+        setTasks({ tasks: [] });
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authStateChanged", handleAuthStateChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authStateChanged", handleAuthStateChange);
+    };
+  }, [loadTasks]);
+
+  // Логируем изменения задач
+  useEffect(() => {
+    console.log("=== TasksContext: useEffect - Задачи изменились ===");
+
+    // Получаем массив задач из правильной структуры
+    let tasksArray = tasks;
+    if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
+      tasksArray = tasks.tasks;
+    } else if (Array.isArray(tasks)) {
+      tasksArray = tasks;
+    } else {
+      console.warn("Задачи не являются массивом:", tasks);
+      return;
+    }
+
+    console.log("Количество задач:", tasksArray.length);
+    console.log("Задачи:", tasksArray);
+    console.log(
+      "Статусы задач:",
+      tasksArray.map((t) => ({
+        id: t._id || t.id,
+        title: t.title,
+        status: t.status,
+      }))
+    );
+    console.log("=== Конец useEffect ===");
+  }, [tasks]);
 
   const value = {
     tasks,

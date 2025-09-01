@@ -155,7 +155,7 @@ const EditTaskPage = () => {
       console.log("Задачи не загружены, загружаем...");
       loadTasks();
     }
-  }, [loading, tasks, loadTasks]);
+  }, [loading, tasks]); // Убираем loadTasks из зависимостей
 
   // Эффект для поиска и установки задачи
   useEffect(() => {
