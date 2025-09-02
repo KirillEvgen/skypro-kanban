@@ -70,25 +70,33 @@ export const TasksProvider = ({ children }) => {
   }, []);
 
   const loadTasks = useCallback(async () => {
+    console.log("=== TasksContext: loadTasks ВЫЗВАНА ===");
     setLoading(true);
     setError(null);
     try {
       console.log("Начинаем загрузку задач...");
       const data = await tasksAPI.getTasks();
-      console.log("Полученные задачи:", data);
+      console.log("=== TasksContext: Полученные задачи ===");
+      console.log("Данные:", data);
+      console.log("Тип данных:", typeof data);
+      console.log("Ключи данных:", Object.keys(data || {}));
 
       // Убеждаемся, что мы всегда работаем с массивом
       let tasksArray = [];
       if (Array.isArray(data)) {
         tasksArray = data;
+        console.log("Данные являются массивом");
       } else if (data && data.tasks && Array.isArray(data.tasks)) {
         tasksArray = data.tasks;
+        console.log("Используем data.tasks как массив");
       } else {
         console.warn(
           "Неожиданная структура данных, устанавливаем пустой массив"
         );
         tasksArray = [];
       }
+
+      console.log("Количество задач в массиве:", tasksArray.length);
 
       // Если задач нет, создаем тестовые задачи
       if (tasksArray.length === 0) {
@@ -97,10 +105,17 @@ export const TasksProvider = ({ children }) => {
       } else {
         // Сохраняем данные в том же формате, что приходят от API
         if (data && data.tasks && Array.isArray(data.tasks)) {
+          console.log("Сохраняем data как есть:", data);
           setTasks(data); // Сохраняем весь объект { tasks: [...] }
+          console.log("=== Состояние должно обновиться на:", data);
         } else {
+          console.log("Оборачиваем массив в объект:", { tasks: tasksArray });
           setTasks({ tasks: tasksArray }); // Оборачиваем массив в объект
+          console.log("=== Состояние должно обновиться на:", {
+            tasks: tasksArray,
+          });
         }
+        console.log("=== setTasks ВЫЗВАНА ===");
       }
     } catch (err) {
       const errorMessage = err.message || "Ошибка при загрузке задач";
@@ -108,6 +123,7 @@ export const TasksProvider = ({ children }) => {
       console.error("Ошибка загрузки задач:", err);
     } finally {
       setLoading(false);
+      console.log("=== TasksContext: loadTasks ЗАВЕРШЕНА ===");
     }
   }, [createTestTasks]);
 
@@ -320,20 +336,33 @@ export const TasksProvider = ({ children }) => {
         `=== TasksContext: Фильтрация задач по статусу "${status}" ===`
       );
       console.log("Все задачи для фильтрации:", tasks);
+      console.log("Тип tasks:", typeof tasks);
+      console.log("tasks.tasks:", tasks?.tasks);
 
       // Получаем массив задач из правильной структуры
       let tasksArray = tasks;
       if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
         tasksArray = tasks.tasks;
+        console.log("Используем tasks.tasks как массив");
       } else if (!Array.isArray(tasks)) {
         console.warn("Задачи не являются массивом:", tasks);
         return [];
+      } else {
+        console.log("Используем tasks как массив");
       }
 
       console.log("Количество задач:", tasksArray.length);
+      console.log("Все задачи в массиве:", tasksArray);
+      console.log(
+        "Статусы всех задач:",
+        tasksArray.map((t) => t.status)
+      );
 
       const filteredTasks = tasksArray.filter((task) => {
         const matches = task.status === status;
+        console.log(
+          `Проверяем задачу "${task.title}": статус "${task.status}" === "${status}" = ${matches}`
+        );
         if (matches) {
           console.log(
             `Задача "${task.title}" (ID: ${task._id || task.id}) соответствует статусу "${status}"`
@@ -398,13 +427,21 @@ export const TasksProvider = ({ children }) => {
   // Логируем изменения задач
   useEffect(() => {
     console.log("=== TasksContext: useEffect - Задачи изменились ===");
+    console.log("Новое значение tasks:", tasks);
+    console.log("Тип tasks:", typeof tasks);
+    console.log("tasks.tasks:", tasks?.tasks);
 
     // Получаем массив задач из правильной структуры
     let tasksArray = tasks;
     if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
       tasksArray = tasks.tasks;
+      console.log("Используем tasks.tasks, количество:", tasksArray.length);
     } else if (Array.isArray(tasks)) {
       tasksArray = tasks;
+      console.log(
+        "Используем tasks как массив, количество:",
+        tasksArray.length
+      );
     } else {
       console.warn("Задачи не являются массивом:", tasks);
       return;

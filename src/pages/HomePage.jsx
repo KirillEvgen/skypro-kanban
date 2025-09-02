@@ -35,7 +35,7 @@ const HomePage = () => {
     console.log("=== HomePage: Обновляем выбранную карточку ===");
     console.log("ID:", id);
     console.log("Задачи:", tasks);
-    console.log("Количество задач:", tasks.length);
+    console.log("Количество задач:", tasks?.tasks?.length || 0);
     if (id) {
       const card = getTaskById(id);
       console.log("Найденная карточка:", card);

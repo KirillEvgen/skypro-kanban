@@ -21,9 +21,18 @@ const Main = ({ onCardClick }) => {
 
   // Получаем массив задач из правильной структуры
   const tasksArray = useMemo(() => {
+    console.log("=== Main: useMemo - обрабатываем задачи ===");
+    console.log("Входные данные tasks:", tasks);
+    console.log("Тип tasks:", typeof tasks);
+    console.log("tasks.tasks:", tasks?.tasks);
+    console.log("Array.isArray(tasks):", Array.isArray(tasks));
+    console.log("Array.isArray(tasks.tasks):", Array.isArray(tasks?.tasks));
+
     if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
+      console.log("Возвращаем tasks.tasks:", tasks.tasks);
       return tasks.tasks;
     } else if (Array.isArray(tasks)) {
+      console.log("Возвращаем tasks как массив:", tasks);
       return tasks;
     } else {
       console.warn("Задачи не являются массивом:", tasks);
@@ -32,16 +41,27 @@ const Main = ({ onCardClick }) => {
   }, [tasks]);
 
   console.log("=== Main компонент рендерится ===");
+  console.log("Контекст tasks:", tasks);
+  console.log("tasksArray после useMemo:", tasksArray);
   console.log("Количество задач:", tasksArray.length);
   console.log("Задачи:", tasksArray);
   console.log("Загрузка:", loading);
   console.log("Ошибка:", error);
 
+  // Прямая проверка контекста
+  console.log("=== ПРЯМАЯ ПРОВЕРКА КОНТЕКСТА ===");
+  console.log("tasks:", tasks);
+  console.log("typeof tasks:", typeof tasks);
+  console.log("tasks.tasks:", tasks?.tasks);
+  console.log("Array.isArray(tasks):", Array.isArray(tasks));
+  console.log("Array.isArray(tasks.tasks):", Array.isArray(tasks?.tasks));
+  console.log("=== КОНЕЦ ПРЯМОЙ ПРОВЕРКИ ===");
+
   // Загружаем задачи при монтировании компонента
   useEffect(() => {
     console.log("Main компонент смонтирован, загружаем задачи...");
     loadTasks();
-  }, []); // Убираем loadTasks из зависимостей
+  }, [loadTasks]);
 
   // Принудительно обновляем при изменении задач
   useEffect(() => {
@@ -308,6 +328,7 @@ const Main = ({ onCardClick }) => {
               </div>
             ) : (
               columnTitles.map((title) => {
+                console.log(`=== Main: Обрабатываем колонку "${title}" ===`);
                 const tasksInColumn = getTasksByStatus(title);
                 console.log(`=== Main: Колонка "${title}" ===`);
                 console.log(
@@ -315,6 +336,7 @@ const Main = ({ onCardClick }) => {
                   tasksInColumn.length
                 );
                 console.log(`Задачи в колонке:`, tasksInColumn);
+                console.log(`=== Main: Рендерим колонку "${title}" ===`);
                 return (
                   <Column key={title} title={title}>
                     {tasksInColumn.map((card) => {
