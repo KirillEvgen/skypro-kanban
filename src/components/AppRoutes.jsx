@@ -67,6 +67,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/exit"
         element={
