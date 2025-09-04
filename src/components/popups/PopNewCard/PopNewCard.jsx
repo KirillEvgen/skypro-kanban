@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Calendar from "../../Calendar/Calendar";
 import { useTasks } from "../../../contexts/TasksContext";
 
 const PopNewCard = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
   const { createTask } = useTasks();
 
   console.log("=== PopNewCard: Компонент рендерится ===");
-  console.log("createTask функция:", createTask);
-  console.log("Тип createTask:", typeof createTask);
-  console.log("=== PopNewCard: Проверяем контекст ===");
   const [formData, setFormData] = useState({
     title: "",
-    description: "Описание задачи",
+    description: "",
     topic: "Web Design",
     date: new Date().toISOString().split("T")[0],
   });
@@ -23,6 +18,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") {
+        console.log("Нажата клавиша Escape - закрываем модальное окно");
         onClose();
       }
     };
@@ -35,6 +31,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Изменение поля ${name}:`, value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -75,8 +72,6 @@ const PopNewCard = ({ isOpen, onClose }) => {
     e.preventDefault();
 
     console.log("=== PopNewCard: handleSubmit вызван ===");
-    console.log("createTask функция:", createTask);
-    console.log("Тип createTask:", typeof createTask);
 
     if (!formData.title.trim()) {
       alert("Пожалуйста, введите название задачи");
@@ -112,7 +107,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
       // Сброс формы
       setFormData({
         title: "",
-        description: "Описание задачи",
+        description: "",
         topic: "Web Design",
         date: new Date().toISOString().split("T")[0],
       });
@@ -123,10 +118,7 @@ const PopNewCard = ({ isOpen, onClose }) => {
 
       // Закрываем модальное окно
       console.log("=== PopNewCard: Закрываем модальное окно ===");
-      console.log("onClose функция:", onClose);
-      console.log("Тип onClose:", typeof onClose);
       onClose();
-      console.log("=== PopNewCard: onClose вызван ===");
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
       alert("Ошибка при создании задачи");
@@ -134,7 +126,12 @@ const PopNewCard = ({ isOpen, onClose }) => {
   };
 
   const handleContainerClick = (e) => {
-    if (e.target === e.currentTarget) {
+    // Дополнительная проверка, чтобы предотвратить случайное закрытие
+    if (
+      e.target === e.currentTarget &&
+      !e.target.closest(".pop-new-card__block")
+    ) {
+      console.log("Клик по фону модального окна - закрываем");
       onClose();
     }
   };

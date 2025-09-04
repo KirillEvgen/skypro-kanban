@@ -4,8 +4,6 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import AddTaskPage from "../pages/AddTaskPage";
-import EditTaskPage from "../pages/EditTaskPage";
-import CardPage from "../pages/CardPage";
 import LogoutPage from "../pages/LogoutPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
@@ -67,7 +65,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      
+
       <Route
         path="/exit"
         element={

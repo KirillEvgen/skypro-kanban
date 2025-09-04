@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Calendar from "../../Calendar/Calendar";
 import { useTasks } from "../../../contexts/TasksContext";
 
 const PopEditCard = ({ isOpen, card, onClose }) => {
-  const navigate = useNavigate();
   const { updateTask, deleteTask } = useTasks();
 
   console.log("=== PopEditCard: Компонент рендерится ===");
   console.log("isOpen:", isOpen);
   console.log("card:", card);
-  console.log("updateTask функция:", updateTask);
-  console.log("Тип updateTask:", typeof updateTask);
   const [formData, setFormData] = useState({
     title: "",
     description: "",

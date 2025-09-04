@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Column from "../Column/Column";
 import Card from "../Card/Card";
@@ -131,10 +131,6 @@ const Main = ({ onCardClick }) => {
     }
   };
 
-  const handleCreateNewTask = () => {
-    navigate("/add-task");
-  };
-
   const handleCreateTestTasks = async () => {
     try {
       console.log("Создаем тестовые задачи...");
@@ -248,8 +244,42 @@ const Main = ({ onCardClick }) => {
   }
 
   // Показываем все уникальные статусы
-  const uniqueStatuses = [...new Set(tasksArray.map((task) => task.status))];
-  console.log("Уникальные статусы в задачах:", uniqueStatuses);
+  console.log("Уникальные статусы в задачах:", [
+    ...new Set(tasksArray.map((task) => task.status)),
+  ]);
+
+  // Дополнительная отладка для понимания проблемы
+  console.log("=== ДОПОЛНИТЕЛЬНАЯ ОТЛАДКА ===");
+  console.log("Всего задач в массиве:", tasksArray.length);
+  tasksArray.forEach((task, index) => {
+    console.log(`Задача ${index + 1}:`, {
+      id: task._id || task.id,
+      title: task.title,
+      status: task.status,
+      topic: task.topic,
+      hasId: !!(task._id || task.id),
+    });
+  });
+
+  // Проверяем, сколько задач должно быть в каждой колонке
+  columnTitles.forEach((title) => {
+    const tasksInColumn = getTasksByStatus(title);
+    console.log(`Колонка "${title}": ${tasksInColumn.length} задач`);
+  });
+
+  // Проверяем, есть ли задачи с неизвестными статусами
+  const unknownStatusTasks = tasksArray.filter(
+    (task) => !columnTitles.includes(task.status)
+  );
+  if (unknownStatusTasks.length > 0) {
+    console.warn(
+      "Найдены задачи с неизвестными статусами:",
+      unknownStatusTasks
+    );
+    console.warn("Эти задачи не будут отображены в колонках!");
+  }
+
+  console.log("=== КОНЕЦ ДОПОЛНИТЕЛЬНОЙ ОТЛАДКИ ===");
 
   return (
     <MainContainer>
@@ -327,23 +357,53 @@ const Main = ({ onCardClick }) => {
                 </div>
               </div>
             ) : (
-              columnTitles.map((title) => {
-                console.log(`=== Main: Обрабатываем колонку "${title}" ===`);
-                const tasksInColumn = getTasksByStatus(title);
-                console.log(`=== Main: Колонка "${title}" ===`);
-                console.log(
-                  `Количество задач в колонке:`,
-                  tasksInColumn.length
-                );
-                console.log(`Задачи в колонке:`, tasksInColumn);
-                console.log(`=== Main: Рендерим колонку "${title}" ===`);
-                return (
-                  <Column key={title} title={title}>
-                    {tasksInColumn.map((card) => {
-                      console.log("Рендерим карточку:", card);
+              <>
+                {columnTitles.map((title) => {
+                  console.log(`=== Main: Обрабатываем колонку "${title}" ===`);
+                  const tasksInColumn = getTasksByStatus(title);
+                  console.log(`=== Main: Колонка "${title}" ===`);
+                  console.log(
+                    `Количество задач в колонке:`,
+                    tasksInColumn.length
+                  );
+                  console.log(`Задачи в колонке:`, tasksInColumn);
+                  console.log(`=== Main: Рендерим колонку "${title}" ===`);
+                  return (
+                    <Column key={title} title={title}>
+                      {tasksInColumn.map((card, index) => {
+                        console.log("Рендерим карточку:", card);
+                        const uniqueKey =
+                          card._id || card.id || `task-${index}-${card.title}`;
+                        return (
+                          <Card
+                            key={uniqueKey}
+                            themeClass={getThemeClass(card.topic)}
+                            themeText={card.topic}
+                            title={card.title}
+                            date={card.date}
+                            onOpenCard={() => handleCardClick(card)}
+                          />
+                        );
+                      })}
+                    </Column>
+                  );
+                })}
+
+                {/* Отображаем задачи с неизвестными статусами */}
+                {unknownStatusTasks.length > 0 && (
+                  <Column key="unknown-status" title="Неизвестный статус">
+                    {unknownStatusTasks.map((card, index) => {
+                      console.log(
+                        "Рендерим карточку с неизвестным статусом:",
+                        card
+                      );
+                      const uniqueKey =
+                        card._id ||
+                        card.id ||
+                        `unknown-task-${index}-${card.title}`;
                       return (
                         <Card
-                          key={card._id || card.id}
+                          key={uniqueKey}
                           themeClass={getThemeClass(card.topic)}
                           themeText={card.topic}
                           title={card.title}
@@ -353,8 +413,8 @@ const Main = ({ onCardClick }) => {
                       );
                     })}
                   </Column>
-                );
-              })
+                )}
+              </>
             )}
           </MainContent>
         </MainBlock>
