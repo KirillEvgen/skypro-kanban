@@ -1,0 +1,359 @@
+import React, { useState, useEffect } from "react";
+import Calendar from "../../Calendar/Calendar";
+import { useTasks } from "../../../contexts/TasksContext";
+
+const PopEditCard = ({ isOpen, card, onClose }) => {
+  const { updateTask, deleteTask } = useTasks();
+
+  console.log("=== PopEditCard: Компонент рендерится ===");
+  console.log("isOpen:", isOpen);
+  console.log("card:", card);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    topic: "Web Design",
+    status: "Без статуса",
+    date: new Date().toISOString().split("T")[0],
+  });
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Инициализация формы при открытии модального окна
+  useEffect(() => {
+    if (isOpen && card) {
+      console.log("Инициализируем форму с данными карточки:", card);
+      console.log("ID карточки:", card._id || card.id);
+      setFormData({
+        title: card.title || "",
+        description: card.description || "",
+        topic: card.topic || "Web Design",
+        status: card.status || "Без статуса",
+        date: card.date
+          ? new Date(card.date).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
+      });
+      setSelectedDate(card.date ? new Date(card.date) : new Date());
+    }
+  }, [isOpen, card]);
+
+  // Обработка клавиши Escape
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
+    }
+  }, [isOpen, onClose]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    console.log(`Изменение поля ${name}:`, value);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleTopicChange = (topic) => {
+    console.log("Изменение категории:", topic);
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        topic,
+      };
+      console.log("Обновленные данные формы:", updated);
+      return updated;
+    });
+  };
+
+  const handleStatusChange = (status) => {
+    console.log("Изменение статуса:", status);
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        status,
+      };
+      console.log("Обновленные данные формы после изменения статуса:", updated);
+      return updated;
+    });
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    const formattedDate = date.toISOString().split("T")[0];
+    setFormData((prev) => ({
+      ...prev,
+      date: formattedDate,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.title.trim()) {
+      alert("Пожалуйста, введите название задачи");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const taskId = card._id || card.id;
+      console.log(
+        "Обновляем задачу с ID:",
+        taskId,
+        "тип:",
+        typeof taskId,
+        "данные:",
+        formData
+      );
+      console.log("Карточка для обновления:", card);
+      console.log("ID карточки (_id):", card._id);
+      console.log("ID карточки (id):", card.id);
+      const updatedTask = await updateTask(taskId, formData);
+      console.log("Задача успешно обновлена:", updatedTask);
+      console.log("Обновленная задача ID:", updatedTask._id || updatedTask.id);
+
+      // Принудительно обновляем контекст
+      console.log("=== PopEditCard: Принудительно обновляем контекст ===");
+
+      // Закрываем модальное окно
+      console.log("=== PopEditCard: Закрываем модальное окно ===");
+      console.log("onClose функция:", onClose);
+      console.log("Тип onClose:", typeof onClose);
+      onClose();
+      console.log("=== PopEditCard: onClose вызван ===");
+    } catch (error) {
+      console.error("Ошибка обновления задачи:", error);
+      console.error("Детали ошибки:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response,
+        status: error.status,
+      });
+      alert(`Ошибка при обновлении задачи: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleContainerClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const getTopicClass = (topic) => {
+    switch (topic) {
+      case "Web Design":
+        return "_orange";
+      case "Research":
+        return "_green";
+      case "Copywriting":
+        return "_purple";
+      default:
+        return "";
+    }
+  };
+
+  // Перемещаем условный рендеринг в конец, после всех вызовов хуков
+  if (!isOpen || !card) {
+    return null;
+  }
+
+  return (
+    <div
+      className="pop-edit-card"
+      style={{ display: isOpen ? "block" : "none" }}
+    >
+      <div className="pop-edit-card__container" onClick={handleContainerClick}>
+        <div className="pop-edit-card__block">
+          <div className="pop-edit-card__content">
+            <h3 className="pop-edit-card__ttl">Редактирование задачи</h3>
+            <a href="#" className="pop-edit-card__close" onClick={onClose}>
+              &#10006;
+            </a>
+
+            {/* Название задачи с тегом категории */}
+            <div className="form-edit__block">
+              <div className="form-edit__header">
+                <label htmlFor="editTitle" className="subttl">
+                  Название задачи
+                </label>
+                <div
+                  className={`categories__theme ${getTopicClass(formData.topic)}`}
+                >
+                  <p className={getTopicClass(formData.topic)}>
+                    {formData.topic}
+                  </p>
+                </div>
+              </div>
+              <input
+                className="form-edit__input"
+                type="text"
+                name="title"
+                id="editTitle"
+                placeholder="Введите название задачи..."
+                value={formData.title}
+                onChange={handleInputChange}
+                autoFocus
+              />
+            </div>
+
+            {/* Статус */}
+            <div className="form-edit__block">
+              <label className="subttl">Статус</label>
+              <div className="form-edit__status-buttons">
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Без статуса" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Без статуса")}
+                >
+                  Без статуса
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Нужно сделать" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Нужно сделать")}
+                >
+                  Нужно сделать
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "В работе" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("В работе")}
+                >
+                  В работе
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Тестирование" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Тестирование")}
+                >
+                  Тестирование
+                </button>
+                <button
+                  type="button"
+                  className={`form-edit__status-btn ${formData.status === "Готово" ? "_active-status" : ""}`}
+                  onClick={() => handleStatusChange("Готово")}
+                >
+                  Готово
+                </button>
+              </div>
+            </div>
+
+            {/* Основной контент: описание слева, календарь справа */}
+            <div className="pop-edit-card__wrap">
+              {/* Описание задачи */}
+              <div className="pop-edit-card__form">
+                <div className="form-edit__block">
+                  <label htmlFor="editDescription" className="subttl">
+                    Описание задачи
+                  </label>
+                  <textarea
+                    className="form-edit__area"
+                    name="description"
+                    id="editDescription"
+                    placeholder="Введите описание задачи..."
+                    value={formData.description}
+                    onChange={handleInputChange}
+                  ></textarea>
+                </div>
+              </div>
+
+              {/* Календарь */}
+              <div className="pop-edit-card__calendar">
+                <label className="subttl">Даты</label>
+                <Calendar
+                  current={false}
+                  active={false}
+                  selectedDate={selectedDate}
+                  onDateSelect={handleDateChange}
+                />
+              </div>
+            </div>
+
+            {/* Категория */}
+            <div className="pop-edit-card__categories categories">
+              <p className="categories__p subttl">Категория</p>
+              <div className="categories__themes">
+                <div
+                  className={`categories__theme _orange ${formData.topic === "Web Design" ? "_active-category" : ""}`}
+                  onClick={() => handleTopicChange("Web Design")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <p className="_orange">Web Design</p>
+                </div>
+                <div
+                  className={`categories__theme _green ${formData.topic === "Research" ? "_active-category" : ""}`}
+                  onClick={() => handleTopicChange("Research")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <p className="_green">Research</p>
+                </div>
+                <div
+                  className={`categories__theme _purple ${formData.topic === "Copywriting" ? "_active-category" : ""}`}
+                  onClick={() => handleTopicChange("Copywriting")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <p className="_purple">Copywriting</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Кнопки действий */}
+            <div className="pop-edit-card__btn-group">
+              <button
+                className="form-edit__save _btn-bg _hover01"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Сохранение..." : "Сохранить"}
+              </button>
+              <button
+                className="form-edit__cancel _btn-bor _hover03"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Отменить
+              </button>
+              <button
+                className="form-edit__delete _btn-bor _hover03"
+                onClick={async () => {
+                  if (
+                    window.confirm("Вы уверены, что хотите удалить эту задачу?")
+                  ) {
+                    try {
+                      const taskId = card._id || card.id;
+                      await deleteTask(taskId);
+                      onClose();
+                    } catch (error) {
+                      console.error("Ошибка удаления задачи:", error);
+                      alert("Ошибка при удалении задачи");
+                    }
+                  }
+                }}
+                disabled={isSubmitting}
+              >
+                Удалить задачу
+              </button>
+              <button
+                className="form-edit__close _btn-bg _hover01"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PopEditCard;

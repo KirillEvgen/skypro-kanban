@@ -76,6 +76,18 @@
   opacity: 1;
 }
 
+._active-category._orange {
+  opacity: 1;
+}
+
+._active-category._green {
+  opacity: 1;
+}
+
+._active-category._purple {
+  opacity: 1;
+}
+
 .pop-wrap {
   position: relative;
   top: 0;
@@ -249,10 +261,15 @@
   min-width: 375px;
   height: 100%;
   min-height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 6;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.pop-new-card[style*="display: block"] {
+  display: block !important;
 }
 .pop-new-card__container {
   width: 100%;
@@ -515,10 +532,15 @@
   height: 100%;
   min-width: 375px;
   min-height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 7;
+  z-index: 1001;
+  pointer-events: auto;
+}
+
+.pop-browse[style*="display: block"] {
+  display: block !important;
 }
 .pop-browse__container {
   width: 100%;
@@ -1300,4 +1322,299 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Стили для модального окна редактирования */
+.pop-edit-card {
+  display: none;
+  width: 100%;
+  min-width: 375px;
+  height: 100%;
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1002;
+  pointer-events: auto;
+}
+
+.pop-edit-card[style*="display: block"] {
+  display: block !important;
+}
+
+.pop-edit-card__container {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.pop-edit-card__block {
+  display: block;
+  margin: 0 auto;
+  background-color: #ffffff;
+  max-width: 630px;
+  width: 100%;
+  padding: 40px 30px 48px;
+  border-radius: 10px;
+  border: 0.7px solid #d4dbe5;
+  position: relative;
+}
+
+.pop-edit-card__content {
+  display: block;
+  text-align: left;
+}
+
+.pop-edit-card__ttl {
+  color: #000;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+  margin-bottom: 20px;
+}
+
+.pop-edit-card__close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: #94a6be;
+  cursor: pointer;
+}
+
+.pop-edit-card__close:hover {
+  color: #000000;
+}
+
+.pop-edit-card__wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.pop-edit-card__form {
+  max-width: 370px;
+  width: 100%;
+  display: block;
+}
+
+.pop-edit-card__calendar {
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pop-edit-card__calendar .subttl {
+  margin-bottom: 14px;
+}
+
+.form-edit__block {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.form-edit__input,
+.form-edit__area,
+.form-edit__select {
+  width: 100%;
+  outline: none;
+  padding: 14px;
+  background: transparent;
+  border: 0.7px solid rgba(148, 166, 190, 0.4);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.14px;
+}
+
+.form-edit__input::-moz-placeholder,
+.form-edit__area::-moz-placeholder {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1px;
+  color: #94a6be;
+  letter-spacing: -0.14px;
+}
+
+.form-edit__input::placeholder,
+.form-edit__area::placeholder {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1px;
+  color: #94a6be;
+  letter-spacing: -0.14px;
+}
+
+.form-edit__input {
+  margin: 20px 0;
+}
+
+.form-edit__area {
+  max-width: 370px;
+  margin-top: 14px;
+  height: 200px;
+  resize: vertical;
+}
+
+.form-edit__select {
+  margin-top: 14px;
+}
+
+.pop-edit-card__btn-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.form-edit__cancel,
+.form-edit__save,
+.form-edit__delete,
+.form-edit__close {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  min-width: 120px;
+}
+
+.form-edit__cancel {
+  background-color: transparent;
+  color: #565eef;
+  border: 1px solid #565eef;
+}
+
+.form-edit__cancel:hover {
+  background-color: #f8f9ff;
+}
+
+.form-edit__save {
+  background-color: #565eef;
+  color: white;
+}
+
+.form-edit__save:hover {
+  background-color: #4a4fd8;
+}
+
+.form-edit__delete {
+  background-color: transparent;
+  color: #565eef;
+  border: 1px solid #565eef;
+}
+
+.form-edit__delete:hover {
+  background-color: #f8f9ff;
+}
+
+.form-edit__close {
+  background-color: #565eef;
+  color: white;
+}
+
+.form-edit__close:hover {
+  background-color: #4a4fd8;
+}
+
+.form-edit__cancel:disabled,
+.form-edit__save:disabled,
+.form-edit__delete:disabled,
+.form-edit__close:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Стили для кнопок статуса */
+.form-edit__status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.form-edit__status-btn {
+  padding: 8px 16px;
+  border: 1px solid #d4dbe5;
+  border-radius: 20px;
+  background-color: #ffffff;
+  color: #94a6be;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form-edit__status-btn:hover {
+  background-color: #f8f9ff;
+  border-color: #565eef;
+  color: #565eef;
+}
+
+.form-edit__status-btn._active-status {
+  background-color: #94a6be;
+  border-color: #94a6be;
+  color: #ffffff;
+}
+
+.form-edit__status-btn._active-status:hover {
+  background-color: #7a8ba3;
+  border-color: #7a8ba3;
+}
+
+/* Дополнительные стили для нового макета редактирования */
+.form-edit__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.form-edit__header .subttl {
+  margin-bottom: 0;
+}
+
+.form-edit__header .categories__theme {
+  margin: 0;
+  opacity: 1;
+}
+
+.pop-edit-card__wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.pop-edit-card__form {
+  max-width: 370px;
+  width: 100%;
+  display: block;
+}
+
+.pop-edit-card__calendar {
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pop-edit-card__calendar .subttl {
+  margin-bottom: 14px;
+}
+
+.form-edit__status-btn {
+  min-width: 100px;
+  text-align: center;
 }
