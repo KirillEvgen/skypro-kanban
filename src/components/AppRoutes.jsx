@@ -4,8 +4,6 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import AddTaskPage from "../pages/AddTaskPage";
-import EditTaskPage from "../pages/EditTaskPage";
-import CardPage from "../pages/CardPage";
 import LogoutPage from "../pages/LogoutPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
@@ -36,18 +34,10 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/add-task"
+        path="/new-task"
         element={
           <ProtectedRoute>
-            <AddTaskPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/edit-task/:id"
-        element={
-          <ProtectedRoute>
-            <EditTaskPage />
+            <HomePage />
           </ProtectedRoute>
         }
       />
@@ -55,10 +45,27 @@ const AppRoutes = () => {
         path="/card/:id"
         element={
           <ProtectedRoute>
-            <CardPage />
+            <HomePage />
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/edit-task/:id"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/add-task"
+        element={
+          <ProtectedRoute>
+            <AddTaskPage />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/exit"
         element={

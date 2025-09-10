@@ -16,7 +16,7 @@ import {
 } from "./Header.styled";
 import { Container } from "../shared/Shared.styled";
 
-const Header = () => {
+const Header = ({ onCreateTask }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -32,7 +32,11 @@ const Header = () => {
   };
 
   const handleCreateTask = () => {
-    navigate("/add-task");
+    if (onCreateTask) {
+      onCreateTask();
+    } else {
+      navigate("/add-task");
+    }
   };
 
   const handleLogout = () => {
@@ -55,10 +59,10 @@ const Header = () => {
             <HeaderBtnMainNew id="btnMainNew" onClick={handleCreateTask}>
               Создать новую задачу
             </HeaderBtnMainNew>
-            <HeaderUser onClick={handleUserClick}>{user.name}</HeaderUser>
-            <HeaderPopUserSet isOpen={isUserMenuOpen}>
-              <PopUserSetName>{user.name}</PopUserSetName>
-              <PopUserSetMail>{user.email}</PopUserSetMail>
+            <HeaderUser onClick={handleUserClick}>{userData.name}</HeaderUser>
+            <HeaderPopUserSet $isOpen={isUserMenuOpen}>
+              <PopUserSetName>{userData.name}</PopUserSetName>
+              <PopUserSetMail>{userData.email}</PopUserSetMail>
               <PopUserSetTheme>
                 <p>Темная тема</p>
                 <input type="checkbox" name="checkbox" />

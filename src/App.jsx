@@ -3,6 +3,9 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import AppRoutes from "./components/AppRoutes";
 import { AuthProvider } from "./contexts/AuthContext";
+import { TasksProvider } from "./contexts/TasksContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import AuthWrapper from "./components/AuthWrapper";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -69,11 +72,17 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <AuthProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </AuthProvider>
+      <Router>
+        <AuthProvider>
+          <AuthWrapper>
+            <ErrorBoundary>
+              <TasksProvider>
+                <AppRoutes />
+              </TasksProvider>
+            </ErrorBoundary>
+          </AuthWrapper>
+        </AuthProvider>
+      </Router>
     </ThemeProvider>
   );
 }
