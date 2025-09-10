@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Проверяем токен при инициализации
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("userData");
@@ -46,36 +45,19 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authAPI.login(credentials);
-      console.log("Ответ от API в AuthContext:", response);
-      console.log("Тип ответа:", typeof response);
-      console.log("Ключи ответа:", Object.keys(response));
-      console.log("Полный объект response:", JSON.stringify(response, null, 2));
 
-      // Токен находится внутри user объекта
       const token = response.user.token;
       const userData = response.user;
-      console.log("Извлеченный токен:", token);
-      console.log("Извлеченные данные пользователя:", userData);
 
-      // Проверяем наличие токена
       if (!token) {
-        console.error("Токен не найден в ответе AuthContext!");
-        console.error("Полный ответ:", response);
         throw new Error("Токен не получен");
       }
 
-      // Сохраняем токен и данные пользователя
       localStorage.setItem("token", token);
       localStorage.setItem("userData", JSON.stringify(userData));
 
-      // Проверяем, что токен сохранился
-      const savedToken = localStorage.getItem("token");
-      console.log("Токен сохранен в localStorage:", savedToken);
-      console.log("Токен совпадает с извлеченным:", savedToken === token);
-
       setUser(userData);
       setIsAuth(true);
-      // Отправляем событие для синхронизации с TasksContext
       window.dispatchEvent(
         new CustomEvent("authStateChanged", { detail: { isAuth: true } })
       );
@@ -104,17 +86,14 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authAPI.register(userData);
-      // Токен находится внутри user объекта
       const token = response.user.token;
       const newUser = response.user;
 
-      // Сохраняем токен и данные пользователя
       localStorage.setItem("token", token);
       localStorage.setItem("userData", JSON.stringify(newUser));
 
       setUser(newUser);
       setIsAuth(true);
-      // Отправляем событие для синхронизации с TasksContext
       window.dispatchEvent(
         new CustomEvent("authStateChanged", { detail: { isAuth: true } })
       );
@@ -142,10 +121,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuth(false);
     setUser(null);
     setError(null);
-    // Очищаем данные пользователя из localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
-    // Отправляем событие для синхронизации с TasksContext
     window.dispatchEvent(
       new CustomEvent("authStateChanged", { detail: { isAuth: false } })
     );

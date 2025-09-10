@@ -1,9 +1,7 @@
 import axios from "axios";
 
-// Базовый URL API - используем правильный адрес
 const API_BASE_URL = "https://wedev-api.sky.pro/api";
 
-// Создаем экземпляр axios с базовой конфигурацией для защищенных запросов
 const api = axios.create({
   baseURL: `${API_BASE_URL}/kanban`,
   headers: {
@@ -11,16 +9,11 @@ const api = axios.create({
   },
 });
 
-// Интерцептор для добавления токена к защищенным запросам
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("Отправляем токен:", token);
-      console.log("Заголовки запроса:", config.headers);
-    } else {
-      console.log("Токен не найден в localStorage");
     }
     return config;
   },
@@ -29,34 +22,25 @@ api.interceptors.request.use(
   }
 );
 
-// Интерцептор для обработки ошибок защищенных запросов
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Если токен истек, очищаем localStorage
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
-      // Не перенаправляем автоматически, пусть компоненты сами решают
     }
     return Promise.reject(error);
   }
 );
 
-// API для авторизации
 export const authAPI = {
-  // Регистрация
   register: async (userData) => {
     try {
-      console.log("Отправляем данные для регистрации:", userData);
-
       const requestData = {
-        login: userData.email, // используем email как login
+        login: userData.email,
         name: userData.name,
         password: userData.password,
       };
-
-      console.log("Данные для отправки:", requestData);
 
       const response = await fetch(`${API_BASE_URL}/user`, {
         method: "POST",
@@ -69,7 +53,6 @@ export const authAPI = {
       }
 
       const data = await response.json();
-      console.log("Успешная регистрация:", data);
       return data;
     } catch (error) {
       console.error("Ошибка регистрации:", error);
@@ -77,13 +60,10 @@ export const authAPI = {
     }
   },
 
-  // Вход
   login: async (credentials) => {
     try {
-      console.log("Отправляем данные для входа:", credentials);
-
       const requestData = {
-        login: credentials.email, // используем email как login
+        login: credentials.email,
         password: credentials.password,
       };
 
@@ -98,21 +78,6 @@ export const authAPI = {
       }
 
       const data = await response.json();
-      console.log("Успешный вход:", data);
-      console.log("Токен из ответа:", data.token);
-      console.log("Пользователь из ответа:", data.user);
-      console.log("Все поля ответа:", Object.keys(data));
-      console.log("Полный ответ:", JSON.stringify(data, null, 2));
-      console.log("Тип возвращаемых данных:", typeof data);
-      console.log("Возвращаем из API:", data);
-
-      // Логируем информацию о токене для отладки
-      if (data.user && data.user.token) {
-        const token = data.user.token;
-        console.log("Длина токена:", token.length);
-        console.log("Токен:", token);
-      }
-
       return data;
     } catch (error) {
       console.error("Ошибка входа:", error);
@@ -121,21 +86,14 @@ export const authAPI = {
   },
 };
 
-// API для задач
 export const tasksAPI = {
-  // Получение всех задач
   getTasks: async () => {
     try {
-      console.log("Запрашиваем задачи...");
       const token = localStorage.getItem("token");
-      console.log("Токен из localStorage:", token);
 
       if (!token) {
         throw new Error("Токен не найден");
       }
-
-      console.log("Отправляем запрос с токеном:", token);
-      console.log("URL запроса:", `${API_BASE_URL}/kanban`);
 
       const response = await fetch(`${API_BASE_URL}/kanban`, {
         method: "GET",
@@ -144,38 +102,38 @@ export const tasksAPI = {
         },
       });
 
-      console.log("Статус ответа задач:", response.status);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Ошибка API задач:", errorData);
         throw new Error(errorData.error || "Ошибка получения задач");
       }
 
       const data = await response.json();
-      console.log("Ответ от API задач:", data);
-      console.log("Тип данных:", typeof data);
-      console.log("Ключи данных:", Object.keys(data));
-      console.log("Структура данных:", JSON.stringify(data, null, 2));
 
-      // Проверяем, есть ли массив задач в ответе
       if (data && data.tasks && Array.isArray(data.tasks)) {
-        console.log("Найден массив задач в data.tasks:", data.tasks);
-        return data; // Возвращаем весь объект { tasks: [...] }
+        return data;
       } else if (Array.isArray(data)) {
-        console.log("Данные уже являются массивом:", data);
-        return { tasks: data }; // Оборачиваем в объект
+        return { tasks: data };
       } else {
-        console.log("Неожиданная структура данных, возвращаем пустой объект");
         return { tasks: [] };
       }
     } catch (error) {
       console.error("Ошибка получения задач:", error);
+
+      // Обработка различных типов ошибок
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
+        throw new Error("Ошибка сети. Проверьте подключение к интернету.");
+      } else if (error.response?.status === 500) {
+        throw new Error("Ошибка сервера. Попробуйте позже.");
+      } else if (error.response?.status === 503) {
+        throw new Error("Сервер временно недоступен. Попробуйте позже.");
+      } else if (error.response?.status >= 500) {
+        throw new Error("Внутренняя ошибка сервера. Попробуйте позже.");
+      }
+
       throw error;
     }
   },
 
-  // Получение задачи по ID
   getTask: async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -196,11 +154,8 @@ export const tasksAPI = {
       }
 
       const data = await response.json();
-      console.log("Ответ от API получения задачи:", data);
 
-      // Проверяем, что данные содержат необходимые поля
       if (!data || typeof data !== "object") {
-        console.error("API вернул некорректные данные:", data);
         throw new Error("Некорректный ответ от API");
       }
 
@@ -211,15 +166,12 @@ export const tasksAPI = {
     }
   },
 
-  // Создание новой задачи
   createTask: async (taskData) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Токен не найден");
       }
-
-      console.log("Отправляем данные для создания задачи:", taskData);
 
       const response = await fetch(`${API_BASE_URL}/kanban`, {
         method: "POST",
@@ -229,33 +181,18 @@ export const tasksAPI = {
         body: JSON.stringify(taskData),
       });
 
-      console.log("Статус ответа создания задачи:", response.status);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Ошибка API создания задачи:", errorData);
         throw new Error(errorData.error || "Ошибка создания задачи");
       }
 
       const data = await response.json();
-      console.log("=== API: Ответ от создания задачи ===");
-      console.log("Данные:", data);
-      console.log("Тип данных:", typeof data);
-      console.log("Структура данных:", JSON.stringify(data, null, 2));
-      console.log("Проверяем наличие ID:", data._id || data.id);
-      console.log("Проверяем наличие title:", data.title);
-      console.log("Проверяем наличие status:", data.status);
-      console.log("=== Конец ответа API ===");
 
-      // Проверяем, что данные содержат необходимые поля
       if (!data || typeof data !== "object") {
-        console.error("API вернул некорректные данные:", data);
         throw new Error("Некорректный ответ от API");
       }
 
-      // Если API вернул список задач, ищем созданную задачу по title и description
       if (data.tasks && Array.isArray(data.tasks)) {
-        console.log("API вернул список задач, ищем созданную задачу");
         const createdTask = data.tasks.find(
           (task) =>
             task.title === taskData.title &&
@@ -263,43 +200,41 @@ export const tasksAPI = {
         );
 
         if (createdTask) {
-          console.log("Найдена созданная задача:", createdTask);
           return createdTask;
         } else {
-          console.error(
-            "Не удалось найти созданную задачу в списке:",
-            data.tasks
-          );
           throw new Error("API не вернул созданную задачу");
         }
       }
 
-      // Если API вернул одну задачу, проверяем наличие обязательных полей
       if (!data._id && !data.id) {
-        console.error("API не вернул ID задачи:", data);
         throw new Error("API не вернул ID задачи");
       }
 
       return data;
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
+
+      // Обработка различных типов ошибок
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
+        throw new Error("Ошибка сети. Проверьте подключение к интернету.");
+      } else if (error.response?.status === 500) {
+        throw new Error("Ошибка сервера. Попробуйте позже.");
+      } else if (error.response?.status === 503) {
+        throw new Error("Сервер временно недоступен. Попробуйте позже.");
+      } else if (error.response?.status >= 500) {
+        throw new Error("Внутренняя ошибка сервера. Попробуйте позже.");
+      }
+
       throw error;
     }
   },
 
-  // Обновление задачи
   updateTask: async (id, taskData) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Токен не найден");
       }
-
-      console.log("Отправляем данные для обновления задачи:", { id, taskData });
-      console.log(
-        "JSON данные для отправки:",
-        JSON.stringify(taskData, null, 2)
-      );
 
       const response = await fetch(`${API_BASE_URL}/kanban/${id}`, {
         method: "PUT",
@@ -309,65 +244,54 @@ export const tasksAPI = {
         body: JSON.stringify(taskData),
       });
 
-      console.log("Статус ответа обновления задачи:", response.status);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Ошибка API обновления задачи:", errorData);
-        console.error("Статус ответа:", response.status);
-        console.error("Заголовки ответа:", response.headers);
         throw new Error(
           errorData.error || `Ошибка обновления задачи (${response.status})`
         );
       }
 
       const data = await response.json();
-      console.log("Ответ от API обновления задачи:", data);
-      console.log("Тип данных:", typeof data);
-      console.log("Структура данных:", JSON.stringify(data, null, 2));
 
-      // Проверяем, что данные содержат необходимые поля
       if (!data || typeof data !== "object") {
-        console.error("API вернул некорректные данные:", data);
         throw new Error("Некорректный ответ от API");
       }
 
-      // Если API вернул список задач, ищем обновленную задачу по ID
       if (data.tasks && Array.isArray(data.tasks)) {
-        console.log(
-          "API вернул список задач, ищем обновленную задачу по ID:",
-          id
-        );
         const updatedTask = data.tasks.find(
           (task) => (task._id || task.id) === id
         );
 
         if (updatedTask) {
-          console.log("Найдена обновленная задача:", updatedTask);
           return updatedTask;
         } else {
-          console.error(
-            "Не удалось найти обновленную задачу в списке:",
-            data.tasks
-          );
           throw new Error("API не вернул обновленную задачу");
         }
       }
 
-      // Если API вернул одну задачу, проверяем наличие ID
       if (!data._id && !data.id) {
-        console.error("API не вернул ID задачи:", data);
         throw new Error("API не вернул ID задачи");
       }
 
       return data;
     } catch (error) {
       console.error("Ошибка обновления задачи:", error);
+
+      // Обработка различных типов ошибок
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
+        throw new Error("Ошибка сети. Проверьте подключение к интернету.");
+      } else if (error.response?.status === 500) {
+        throw new Error("Ошибка сервера. Попробуйте позже.");
+      } else if (error.response?.status === 503) {
+        throw new Error("Сервер временно недоступен. Попробуйте позже.");
+      } else if (error.response?.status >= 500) {
+        throw new Error("Внутренняя ошибка сервера. Попробуйте позже.");
+      }
+
       throw error;
     }
   },
 
-  // Удаление задачи
   deleteTask: async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -388,17 +312,26 @@ export const tasksAPI = {
       }
 
       const data = await response.json();
-      console.log("Ответ от API удаления задачи:", data);
 
-      // Проверяем, что данные содержат необходимые поля
       if (!data || typeof data !== "object") {
-        console.error("API вернул некорректные данные:", data);
         throw new Error("Некорректный ответ от API");
       }
 
       return data;
     } catch (error) {
       console.error("Ошибка удаления задачи:", error);
+
+      // Обработка различных типов ошибок
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
+        throw new Error("Ошибка сети. Проверьте подключение к интернету.");
+      } else if (error.response?.status === 500) {
+        throw new Error("Ошибка сервера. Попробуйте позже.");
+      } else if (error.response?.status === 503) {
+        throw new Error("Сервер временно недоступен. Попробуйте позже.");
+      } else if (error.response?.status >= 500) {
+        throw new Error("Внутренняя ошибка сервера. Попробуйте позже.");
+      }
+
       throw error;
     }
   },

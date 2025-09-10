@@ -136,47 +136,6 @@ export const PopUserSetMail = styled.p`
   margin-bottom: 10px;
 `;
 
-export const PopUserSetTheme = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 30px;
-
-  p {
-    color: #000;
-    font-size: 14px;
-    line-height: 21px;
-    font-weight: 500;
-  }
-
-  input[type="checkbox"] {
-    width: 24px;
-    height: 13px;
-    border-radius: 100px;
-    border: 1px solid #565eef;
-    outline: none;
-    appearance: none;
-    position: relative;
-    cursor: pointer;
-  }
-
-  input[type="checkbox"]::before {
-    content: "";
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background-color: #565eef;
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transition: left 0.3s ease;
-  }
-
-  input:checked[type="checkbox"]::before {
-    left: 12px;
-  }
-`;
 
 export const PopUserSetButton = styled.button`
   width: 72px;

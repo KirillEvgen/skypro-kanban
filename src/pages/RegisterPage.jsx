@@ -133,6 +133,27 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Валидация пустых полей
+    if (!formData.name.trim()) {
+      setValidationError("Пожалуйста, введите имя");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setValidationError("Пожалуйста, введите email");
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      setValidationError("Пожалуйста, введите пароль");
+      return;
+    }
+
+    if (!formData.confirmPassword.trim()) {
+      setValidationError("Пожалуйста, подтвердите пароль");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setValidationError("Пароли не совпадают");
       return;
