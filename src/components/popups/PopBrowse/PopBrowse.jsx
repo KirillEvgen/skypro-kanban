@@ -4,9 +4,7 @@ import Calendar from "../../Calendar/Calendar";
 
 const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
   const navigate = useNavigate();
-  console.log("PopBrowse получил props:", { isOpen, card });
 
-  // Обработка клавиши Escape
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") {
@@ -20,7 +18,6 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
     }
   }, [isOpen, onClose]);
 
-  // Функция для форматирования даты
   const formatDate = (dateString) => {
     if (!dateString) return "";
 
@@ -41,7 +38,6 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
     }
   };
 
-  // Функция для получения класса статуса
   const getStatusClass = (status) => {
     switch (status) {
       case "Без статуса":
@@ -59,7 +55,6 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
     }
   };
 
-  // Функция для получения класса категории
   const getTopicClass = (topic) => {
     switch (topic) {
       case "Web Design":
@@ -87,14 +82,11 @@ const PopBrowse = ({ isOpen, card, onClose, onEdit, onDelete }) => {
     }
   };
 
-  // Перемещаем условный рендеринг в конец, после всех вызовов хуков
   if (!isOpen || !card) {
     return null;
   }
 
-  // Дополнительная проверка на существование необходимых полей
   if (!card.title || !card.topic) {
-    console.error("Карточка не содержит необходимых данных:", card);
     return null;
   }
 

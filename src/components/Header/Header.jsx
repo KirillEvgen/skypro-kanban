@@ -11,7 +11,6 @@ import {
   HeaderPopUserSet,
   PopUserSetName,
   PopUserSetMail,
-  PopUserSetTheme,
   PopUserSetButton,
 } from "./Header.styled";
 import { Container } from "../shared/Shared.styled";
@@ -63,10 +62,6 @@ const Header = ({ onCreateTask }) => {
             <HeaderPopUserSet $isOpen={isUserMenuOpen}>
               <PopUserSetName>{userData.name}</PopUserSetName>
               <PopUserSetMail>{userData.email}</PopUserSetMail>
-              <PopUserSetTheme>
-                <p>Темная тема</p>
-                <input type="checkbox" name="checkbox" />
-              </PopUserSetTheme>
               <PopUserSetButton onClick={handleLogout}>Выйти</PopUserSetButton>
             </HeaderPopUserSet>
           </HeaderNav>
