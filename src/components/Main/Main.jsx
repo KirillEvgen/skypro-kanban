@@ -8,8 +8,6 @@ import { Container } from "../shared/Shared.styled";
 import { cardList } from "../../data";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import EmptyState from "../shared/EmptyState";
-import SearchAndFilter from "../shared/SearchAndFilter";
-import TaskStats from "../shared/TaskStats";
 
 const Main = ({ onCardClick }) => {
   const navigate = useNavigate();
@@ -23,10 +21,6 @@ const Main = ({ onCardClick }) => {
     loadTasks,
   } = useTasks();
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [sortBy, setSortBy] = useState("date-desc");
-
   const tasksArray = useMemo(() => {
     if (tasks && tasks.tasks && Array.isArray(tasks.tasks)) {
       return tasks.tasks;
@@ -36,50 +30,6 @@ const Main = ({ onCardClick }) => {
       return [];
     }
   }, [tasks]);
-
-  const filteredAndSortedTasks = useMemo(() => {
-    let filtered = tasksArray;
-
-    // Фильтрация по поисковому запросу
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (task) =>
-          task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          task.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Фильтрация по статусу
-    if (filterStatus) {
-      filtered = filtered.filter((task) => task.status === filterStatus);
-    }
-
-    // Сортировка
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "date-desc":
-          return new Date(b.date) - new Date(a.date);
-        case "date-asc":
-          return new Date(a.date) - new Date(b.date);
-        case "title-asc":
-          return a.title.localeCompare(b.title);
-        case "title-desc":
-          return b.title.localeCompare(a.title);
-        case "status":
-          return a.status.localeCompare(b.status);
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [tasksArray, searchTerm, filterStatus, sortBy]);
-
-  const handleClearFilters = () => {
-    setSearchTerm("");
-    setFilterStatus("");
-    setSortBy("date-desc");
-  };
 
   useEffect(() => {
     loadTasks();
@@ -222,29 +172,35 @@ const Main = ({ onCardClick }) => {
               />
             ) : (
               <>
-                <TaskStats tasks={tasksArray} />
+                {columnTitles.map((title) => {
+                  const tasksInColumn = getTasksByStatus(title);
+                  return (
+                    <Column key={title} title={title}>
+                      {tasksInColumn.map((card, index) => {
+                        const uniqueKey =
+                          card._id || card.id || `task-${index}-${card.title}`;
+                        return (
+                          <Card
+                            key={uniqueKey}
+                            themeClass={getThemeClass(card.topic)}
+                            themeText={card.topic}
+                            title={card.title}
+                            date={card.date}
+                            onOpenCard={() => handleCardClick(card)}
+                          />
+                        );
+                      })}
+                    </Column>
+                  );
+                })}
 
-                <SearchAndFilter
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  filterStatus={filterStatus}
-                  onFilterChange={setFilterStatus}
-                  sortBy={sortBy}
-                  onSortChange={setSortBy}
-                  onClearFilters={handleClearFilters}
-                />
-
-                {searchTerm || filterStatus ? (
-                  // Показываем отфильтрованные задачи в одной колонке
-                  <Column
-                    key="filtered"
-                    title={`Найдено: ${filteredAndSortedTasks.length}`}
-                  >
-                    {filteredAndSortedTasks.map((card, index) => {
+                {unknownStatusTasks.length > 0 && (
+                  <Column key="unknown-status" title="Неизвестный статус">
+                    {unknownStatusTasks.map((card, index) => {
                       const uniqueKey =
                         card._id ||
                         card.id ||
-                        `filtered-task-${index}-${card.title}`;
+                        `unknown-task-${index}-${card.title}`;
                       return (
                         <Card
                           key={uniqueKey}
@@ -257,54 +213,6 @@ const Main = ({ onCardClick }) => {
                       );
                     })}
                   </Column>
-                ) : (
-                  // Показываем задачи по колонкам
-                  <>
-                    {columnTitles.map((title) => {
-                      const tasksInColumn = getTasksByStatus(title);
-                      return (
-                        <Column key={title} title={title}>
-                          {tasksInColumn.map((card, index) => {
-                            const uniqueKey =
-                              card._id ||
-                              card.id ||
-                              `task-${index}-${card.title}`;
-                            return (
-                              <Card
-                                key={uniqueKey}
-                                themeClass={getThemeClass(card.topic)}
-                                themeText={card.topic}
-                                title={card.title}
-                                date={card.date}
-                                onOpenCard={() => handleCardClick(card)}
-                              />
-                            );
-                          })}
-                        </Column>
-                      );
-                    })}
-
-                    {unknownStatusTasks.length > 0 && (
-                      <Column key="unknown-status" title="Неизвестный статус">
-                        {unknownStatusTasks.map((card, index) => {
-                          const uniqueKey =
-                            card._id ||
-                            card.id ||
-                            `unknown-task-${index}-${card.title}`;
-                          return (
-                            <Card
-                              key={uniqueKey}
-                              themeClass={getThemeClass(card.topic)}
-                              themeText={card.topic}
-                              title={card.title}
-                              date={card.date}
-                              onOpenCard={() => handleCardClick(card)}
-                            />
-                          );
-                        })}
-                      </Column>
-                    )}
-                  </>
                 )}
               </>
             )}

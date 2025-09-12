@@ -93,10 +93,11 @@ export const CardBtn = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #f4f5f6;
-    border-radius: 4px;
+    background-color: #f5f5f5;
   }
 
   div {
@@ -104,36 +105,41 @@ export const CardBtn = styled.button`
     height: 4px;
     border-radius: 50%;
     background-color: #94a6be;
+    margin: 0 1px;
   }
 `;
 
 export const CardContent = styled.div`
-  width: 100%;
+  min-height: 64px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex: 1;
+  height: 100%;
 `;
 
 export const CardTitle = styled.h3`
   color: #000000;
   font-size: 14px;
   font-weight: 500;
-  line-height: 1;
-  margin-bottom: 10px;
+  line-height: 18px;
+  margin-bottom: 12px;
+  margin-top: 0;
   cursor: pointer;
+  transition: color 0.3s ease;
 
   &:hover {
-    color: #33399b;
+    color: #565eef;
   }
 `;
 
 export const CardDate = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #94a6be;
-  font-size: 10px;
-  line-height: 12px;
+  justify-content: flex-start;
+  margin-top: auto;
+  flex-shrink: 0;
 
   svg {
     width: 13px;
@@ -141,9 +147,13 @@ export const CardDate = styled.div`
   }
 
   p {
-    color: #94a6be;
+    margin-left: 6px;
     font-size: 10px;
-    line-height: 12px;
+    line-height: 13px;
+    color: #94a6be;
+    letter-spacing: 0.2px;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 `;
 
