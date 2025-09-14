@@ -6,7 +6,6 @@ import React, {
   useCallback,
 } from "react";
 import { tasksAPI } from "../services/api";
-import { cardList } from "../data";
 import {
   showSuccess,
   showError,
@@ -29,41 +28,6 @@ export const TasksProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const createTestTasks = useCallback(async () => {
-    try {
-      const createdTasks = [];
-
-      for (const taskData of cardList) {
-        try {
-          const dateParts = taskData.date.split(".");
-          const year =
-            dateParts[2].length === 2 ? `20${dateParts[2]}` : dateParts[2];
-          const formattedDate = `${year}-${dateParts[1].padStart(2, "0")}-${dateParts[0].padStart(2, "0")}`;
-
-          const newTask = await tasksAPI.createTask({
-            title: taskData.title,
-            description: taskData.description,
-            topic: taskData.topic,
-            status: taskData.status,
-            date: formattedDate,
-          });
-          createdTasks.push(newTask);
-        } catch (error) {
-          console.error("Ошибка создания задачи:", taskData.title, error);
-        }
-      }
-
-      if (createdTasks.length > 0) {
-        setTasks({ tasks: createdTasks });
-      } else {
-        setTasks({ tasks: [] });
-      }
-    } catch (error) {
-      console.error("Ошибка создания тестовых задач:", error);
-      setError("Ошибка создания тестовых задач");
-    }
-  }, []);
-
   const loadTasks = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -79,14 +43,11 @@ export const TasksProvider = ({ children }) => {
         tasksArray = [];
       }
 
-      if (tasksArray.length === 0) {
-        await createTestTasks();
+      // Устанавливаем задачи пользователя (может быть пустой массив)
+      if (data && data.tasks && Array.isArray(data.tasks)) {
+        setTasks(data);
       } else {
-        if (data && data.tasks && Array.isArray(data.tasks)) {
-          setTasks(data);
-        } else {
-          setTasks({ tasks: tasksArray });
-        }
+        setTasks({ tasks: tasksArray });
       }
     } catch (err) {
       const errorMessage = err.message || "Ошибка при загрузке задач";
@@ -95,7 +56,7 @@ export const TasksProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [createTestTasks]);
+  }, []);
 
   const createTask = useCallback(async (taskData) => {
     setLoading(true);

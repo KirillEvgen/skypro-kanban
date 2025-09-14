@@ -5,7 +5,6 @@ import Card from "../Card/Card";
 import { useTasks } from "../../contexts/TasksContext";
 import { MainContainer, MainBlock, MainContent } from "./Main.styled";
 import { Container } from "../shared/Shared.styled";
-import { cardList } from "../../data";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import EmptyState from "../shared/EmptyState";
 
@@ -62,34 +61,6 @@ const Main = ({ onCardClick }) => {
     } else {
       const taskId = card._id || card.id;
       navigate(`/card/${taskId}`);
-    }
-  };
-
-  const handleCreateTestTasks = async () => {
-    try {
-      const createdTasks = [];
-
-      for (const taskData of cardList) {
-        try {
-          const dateParts = taskData.date.split(".");
-          const year =
-            dateParts[2].length === 2 ? `20${dateParts[2]}` : dateParts[2];
-          const formattedDate = `${year}-${dateParts[1].padStart(2, "0")}-${dateParts[0].padStart(2, "0")}`;
-
-          const newTask = await createTask({
-            title: taskData.title,
-            description: taskData.description,
-            topic: taskData.topic,
-            status: taskData.status,
-            date: formattedDate,
-          });
-          createdTasks.push(newTask);
-        } catch (error) {
-          console.error("Ошибка создания задачи:", taskData.title, error);
-        }
-      }
-    } catch (error) {
-      console.error("Ошибка создания тестовых задач:", error);
     }
   };
 
@@ -166,7 +137,6 @@ const Main = ({ onCardClick }) => {
               <EmptyState
                 title="Нет задач"
                 message='Создайте первую задачу, нажав кнопку "Создать новую задачу" в заголовке'
-                onCreateTestTasks={handleCreateTestTasks}
                 onLoadTasks={loadTasks}
                 isLoading={loading}
               />
