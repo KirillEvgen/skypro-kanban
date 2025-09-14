@@ -126,6 +126,18 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Валидация пустых полей
+    if (!formData.email.trim()) {
+      setError("Пожалуйста, введите email");
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      setError("Пожалуйста, введите пароль");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {

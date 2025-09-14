@@ -21,67 +21,43 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // Определяем какое модальное окно должно быть открыто
   const isNewTaskModalOpen = location.pathname === "/new-task";
   const isBrowseModalOpen = location.pathname.startsWith("/card/") && id;
   const isEditModalOpen = location.pathname.startsWith("/edit-task/") && id;
 
-  // Получаем задачу для модальных окон
   const { getTaskById, tasks } = useTasks();
   const [selectedCard, setSelectedCard] = useState(null);
 
-  // Принудительно обновляем выбранную карточку при изменении задач
   useEffect(() => {
-    console.log("=== HomePage: Обновляем выбранную карточку ===");
-    console.log("ID:", id);
-    console.log("Задачи:", tasks);
-    console.log("Количество задач:", tasks?.tasks?.length || 0);
     if (id) {
       const card = getTaskById(id);
-      console.log("Найденная карточка:", card);
       setSelectedCard(card);
     } else {
       setSelectedCard(null);
     }
-    console.log("=== Конец обновления карточки ===");
-
-    // Принудительно вызываем перерендер
-    const timeoutId = setTimeout(() => {
-      console.log("=== HomePage: Принудительный перерендер ===");
-      // Это вызовет перерендер компонента
-    }, 0);
-
-    return () => clearTimeout(timeoutId);
   }, [id, tasks, getTaskById]);
 
   const handleCreateNewTask = () => {
-    console.log("Открываем модальное окно создания задачи");
     navigate("/new-task");
   };
 
   const handleCloseNewTaskModal = () => {
-    console.log("=== HomePage: Закрываем модальное окно создания задачи ===");
     navigate("/");
-    console.log("=== HomePage: Навигация выполнена ===");
   };
 
   const handleCardClick = (card) => {
-    console.log("Открываем модальное окно просмотра задачи:", card);
     navigate(`/card/${card._id || card.id}`);
   };
 
   const handleCloseBrowseModal = () => {
-    console.log("Закрываем модальное окно просмотра задачи");
     navigate("/");
   };
 
   const handleEditCard = (card) => {
-    console.log("Открываем модальное окно редактирования задачи:", card);
     navigate(`/edit-task/${card._id || card.id}`);
   };
 
   const handleCloseEditModal = () => {
-    console.log("Закрываем модальное окно редактирования задачи");
     navigate("/");
   };
 

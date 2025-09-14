@@ -5,9 +5,6 @@ import { useTasks } from "../../../contexts/TasksContext";
 const PopEditCard = ({ isOpen, card, onClose }) => {
   const { updateTask, deleteTask } = useTasks();
 
-  console.log("=== PopEditCard: Компонент рендерится ===");
-  console.log("isOpen:", isOpen);
-  console.log("card:", card);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -17,12 +14,10 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
   });
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  // Инициализация формы при открытии модального окна
   useEffect(() => {
     if (isOpen && card) {
-      console.log("Инициализируем форму с данными карточки:", card);
-      console.log("ID карточки:", card._id || card.id);
       setFormData({
         title: card.title || "",
         description: card.description || "",
@@ -36,7 +31,6 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
     }
   }, [isOpen, card]);
 
-  // Обработка клавиши Escape
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") {
@@ -52,35 +46,28 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Изменение поля ${name}:`, value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+    // Очищаем ошибку при изменении полей
+    if (error) {
+      setError("");
+    }
   };
 
   const handleTopicChange = (topic) => {
-    console.log("Изменение категории:", topic);
-    setFormData((prev) => {
-      const updated = {
-        ...prev,
-        topic,
-      };
-      console.log("Обновленные данные формы:", updated);
-      return updated;
-    });
+    setFormData((prev) => ({
+      ...prev,
+      topic,
+    }));
   };
 
   const handleStatusChange = (status) => {
-    console.log("Изменение статуса:", status);
-    setFormData((prev) => {
-      const updated = {
-        ...prev,
-        status,
-      };
-      console.log("Обновленные данные формы после изменения статуса:", updated);
-      return updated;
-    });
+    setFormData((prev) => ({
+      ...prev,
+      status,
+    }));
   };
 
   const handleDateChange = (date) => {
@@ -95,47 +82,42 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.title.trim()) {
-      alert("Пожалуйста, введите название задачи");
+    // Валидация полей
+    const title = formData.title.trim();
+    const description = formData.description.trim();
+
+    if (!title) {
+      setError("Пожалуйста, введите название задачи");
+      return;
+    }
+
+    if (title.length < 3) {
+      setError("Название задачи должно содержать минимум 3 символа");
+      return;
+    }
+
+    if (!description) {
+      setError("Пожалуйста, введите описание задачи");
+      return;
+    }
+
+    if (description.length < 10) {
+      setError("Описание задачи должно содержать минимум 10 символов");
       return;
     }
 
     setIsSubmitting(true);
     try {
       const taskId = card._id || card.id;
-      console.log(
-        "Обновляем задачу с ID:",
-        taskId,
-        "тип:",
-        typeof taskId,
-        "данные:",
-        formData
-      );
-      console.log("Карточка для обновления:", card);
-      console.log("ID карточки (_id):", card._id);
-      console.log("ID карточки (id):", card.id);
-      const updatedTask = await updateTask(taskId, formData);
-      console.log("Задача успешно обновлена:", updatedTask);
-      console.log("Обновленная задача ID:", updatedTask._id || updatedTask.id);
-
-      // Принудительно обновляем контекст
-      console.log("=== PopEditCard: Принудительно обновляем контекст ===");
-
-      // Закрываем модальное окно
-      console.log("=== PopEditCard: Закрываем модальное окно ===");
-      console.log("onClose функция:", onClose);
-      console.log("Тип onClose:", typeof onClose);
+      const updatedTask = await updateTask(taskId, {
+        ...formData,
+        title: title,
+        description: description,
+      });
       onClose();
-      console.log("=== PopEditCard: onClose вызван ===");
     } catch (error) {
       console.error("Ошибка обновления задачи:", error);
-      console.error("Детали ошибки:", {
-        message: error.message,
-        stack: error.stack,
-        response: error.response,
-        status: error.status,
-      });
-      alert(`Ошибка при обновлении задачи: ${error.message}`);
+      setError(error.message || "Ошибка при обновлении задачи");
     } finally {
       setIsSubmitting(false);
     }
@@ -160,7 +142,6 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
     }
   };
 
-  // Перемещаем условный рендеринг в конец, после всех вызовов хуков
   if (!isOpen || !card) {
     return null;
   }
@@ -177,8 +158,22 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
             <a href="#" className="pop-edit-card__close" onClick={onClose}>
               &#10006;
             </a>
+            {error && (
+              <div
+                style={{
+                  color: "#e74c3c",
+                  backgroundColor: "#fdf2f2",
+                  border: "1px solid #fecaca",
+                  borderRadius: "4px",
+                  padding: "10px",
+                  marginBottom: "20px",
+                  fontSize: "14px",
+                }}
+              >
+                {error}
+              </div>
+            )}
 
-            {/* Название задачи с тегом категории */}
             <div className="form-edit__block">
               <div className="form-edit__header">
                 <label htmlFor="editTitle" className="subttl">
@@ -204,7 +199,6 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
               />
             </div>
 
-            {/* Статус */}
             <div className="form-edit__block">
               <label className="subttl">Статус</label>
               <div className="form-edit__status-buttons">
@@ -246,9 +240,7 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
               </div>
             </div>
 
-            {/* Основной контент: описание слева, календарь справа */}
             <div className="pop-edit-card__wrap">
-              {/* Описание задачи */}
               <div className="pop-edit-card__form">
                 <div className="form-edit__block">
                   <label htmlFor="editDescription" className="subttl">
@@ -265,7 +257,6 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
                 </div>
               </div>
 
-              {/* Календарь */}
               <div className="pop-edit-card__calendar">
                 <label className="subttl">Даты</label>
                 <Calendar
@@ -277,7 +268,6 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
               </div>
             </div>
 
-            {/* Категория */}
             <div className="pop-edit-card__categories categories">
               <p className="categories__p subttl">Категория</p>
               <div className="categories__themes">
@@ -305,7 +295,6 @@ const PopEditCard = ({ isOpen, card, onClose }) => {
               </div>
             </div>
 
-            {/* Кнопки действий */}
             <div className="pop-edit-card__btn-group">
               <button
                 className="form-edit__save _btn-bg _hover01"

@@ -5,7 +5,6 @@ import { useTasks } from "../../../contexts/TasksContext";
 const PopNewCard = ({ isOpen, onClose }) => {
   const { createTask } = useTasks();
 
-  console.log("=== PopNewCard: Компонент рендерится ===");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -13,12 +12,11 @@ const PopNewCard = ({ isOpen, onClose }) => {
     date: new Date().toISOString().split("T")[0],
   });
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [error, setError] = useState("");
 
-  // Обработка клавиши Escape
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") {
-        console.log("Нажата клавиша Escape - закрываем модальное окно");
         onClose();
       }
     };
@@ -31,32 +29,21 @@ const PopNewCard = ({ isOpen, onClose }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Изменение поля ${name}:`, value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+    // Очищаем ошибку при изменении полей
+    if (error) {
+      setError("");
+    }
   };
 
   const handleTopicChange = (topic) => {
-    console.log("Выбрана категория:", topic);
-    console.log("Текущее состояние до обновления:", formData);
-
-    setFormData((prev) => {
-      const updated = {
-        ...prev,
-        topic,
-      };
-      console.log("Обновленные данные формы:", updated);
-      return updated;
-    });
-
-    // Принудительно обновляем состояние
-    setTimeout(() => {
-      console.log("Принудительно обновляем состояние после выбора категории");
-      console.log("Состояние после обновления:", formData);
-      setFormData((current) => ({ ...current }));
-    }, 0);
+    setFormData((prev) => ({
+      ...prev,
+      topic,
+    }));
   };
 
   const handleDateChange = (date) => {
@@ -71,40 +58,43 @@ const PopNewCard = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("=== PopNewCard: handleSubmit вызван ===");
+    // Валидация полей
+    const title = formData.title.trim();
+    const description = formData.description.trim();
 
-    if (!formData.title.trim()) {
-      alert("Пожалуйста, введите название задачи");
+    if (!title) {
+      setError("Пожалуйста, введите название задачи");
       return;
     }
 
-    if (!formData.description.trim()) {
-      alert("Пожалуйста, введите описание задачи");
+    if (title.length < 3) {
+      setError("Название задачи должно содержать минимум 3 символа");
+      return;
+    }
+
+    if (!description) {
+      setError("Пожалуйста, введите описание задачи");
+      return;
+    }
+
+    if (description.length < 10) {
+      setError("Описание задачи должно содержать минимум 10 символов");
       return;
     }
 
     try {
-      console.log("=== PopNewCard: Начинаем создание задачи ===");
-      console.log("Данные формы:", formData);
-
-      // Проверяем, что createTask действительно является функцией
       if (typeof createTask !== "function") {
-        console.error("createTask не является функцией!");
         throw new Error("createTask не является функцией");
       }
 
       const newTask = await createTask({
-        title: formData.title,
-        description: formData.description,
+        title: title,
+        description: description,
         topic: formData.topic,
         status: "Без статуса",
         date: formData.date,
       });
 
-      console.log("=== PopNewCard: Задача успешно создана ===");
-      console.log("Созданная задача:", newTask);
-
-      // Сброс формы
       setFormData({
         title: "",
         description: "",
@@ -113,38 +103,28 @@ const PopNewCard = ({ isOpen, onClose }) => {
       });
       setSelectedDate(new Date());
 
-      // Принудительно обновляем контекст
-      console.log("=== PopNewCard: Принудительно обновляем контекст ===");
-
-      // Закрываем модальное окно
-      console.log("=== PopNewCard: Закрываем модальное окно ===");
       onClose();
     } catch (error) {
       console.error("Ошибка создания задачи:", error);
-      alert("Ошибка при создании задачи");
+      setError(error.message || "Ошибка при создании задачи");
     }
   };
 
   const handleContainerClick = (e) => {
-    // Дополнительная проверка, чтобы предотвратить случайное закрытие
     if (
       e.target === e.currentTarget &&
       !e.target.closest(".pop-new-card__block")
     ) {
-      console.log("Клик по фону модального окна - закрываем");
+      setError("");
       onClose();
     }
   };
 
-  // Отладочная информация в useEffect
-  useEffect(() => {
-    if (isOpen) {
-      console.log("PopNewCard - текущее состояние формы:", formData);
-      console.log("PopNewCard - выбранная категория:", formData.topic);
-    }
-  }, [formData, isOpen]);
+  const handleClose = () => {
+    setError("");
+    onClose();
+  };
 
-  // Перемещаем условный рендеринг в конец, после всех вызовов хуков
   if (!isOpen) {
     return null;
   }
@@ -160,9 +140,24 @@ const PopNewCard = ({ isOpen, onClose }) => {
         <div className="pop-new-card__block">
           <div className="pop-new-card__content">
             <h3 className="pop-new-card__ttl">Создание задачи</h3>
-            <a href="#" className="pop-new-card__close" onClick={onClose}>
+            <a href="#" className="pop-new-card__close" onClick={handleClose}>
               &#10006;
             </a>
+            {error && (
+              <div
+                style={{
+                  color: "#e74c3c",
+                  backgroundColor: "#fdf2f2",
+                  border: "1px solid #fecaca",
+                  borderRadius: "4px",
+                  padding: "10px",
+                  marginBottom: "20px",
+                  fontSize: "14px",
+                }}
+              >
+                {error}
+              </div>
+            )}
             <div className="pop-new-card__wrap">
               <form
                 className="pop-new-card__form form-new"
