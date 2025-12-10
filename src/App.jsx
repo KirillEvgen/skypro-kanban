@@ -15,12 +15,10 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f5f5f5;
+    background-color: #eaeef6;
     color: #000;
     line-height: 1.5;
   }
@@ -56,7 +54,7 @@ const theme = {
   colors: {
     primary: "#565eef",
     secondary: "#94a6be",
-    background: "#f5f5f5",
+    background: "#eaeef6",
     white: "#ffffff",
     black: "#000000",
     gray: "#d4dbe3",

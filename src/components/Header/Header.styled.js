@@ -59,6 +59,7 @@ export const HeaderBtnMainNew = styled.button`
   font-weight: 500;
   margin-right: 20px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #33399b;
@@ -82,6 +83,7 @@ export const HeaderUser = styled.button`
   cursor: pointer;
   background: none;
   border: none;
+  transition: color 0.3s ease;
 
   &:hover {
     color: #33399b;
@@ -113,8 +115,9 @@ export const HeaderPopUserSet = styled.div`
   width: 213px;
   height: 205px;
   border-radius: 10px;
-  border: 0.7px solid #d4dbe3;
+  border: 0.7px solid rgba(148, 166, 190, 0.4);
   background: #fff;
+  box-shadow: 0px 10px 39px 0px rgba(26, 56, 101, 0.21);
   padding: 34px;
   text-align: center;
   z-index: 2;
@@ -136,48 +139,6 @@ export const PopUserSetMail = styled.p`
   margin-bottom: 10px;
 `;
 
-export const PopUserSetTheme = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 30px;
-
-  p {
-    color: #000;
-    font-size: 14px;
-    line-height: 21px;
-    font-weight: 500;
-  }
-
-  input[type="checkbox"] {
-    width: 24px;
-    height: 13px;
-    border-radius: 100px;
-    border: 1px solid #565eef;
-    outline: none;
-    appearance: none;
-    position: relative;
-    cursor: pointer;
-  }
-
-  input[type="checkbox"]::before {
-    content: "";
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background-color: #565eef;
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transition: left 0.3s ease;
-  }
-
-  input:checked[type="checkbox"]::before {
-    left: 12px;
-  }
-`;
-
 export const PopUserSetButton = styled.button`
   width: 72px;
   height: 30px;
@@ -189,6 +150,7 @@ export const PopUserSetButton = styled.button`
   line-height: 1;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 
   &:hover {
     background-color: #33399b;

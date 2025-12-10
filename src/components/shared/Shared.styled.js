@@ -11,7 +11,7 @@ export const Container = styled.div`
     max-width: 100%;
     width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 16px;
   }
 `;
 
@@ -151,7 +151,8 @@ export const PopupContainer = styled.div`
   max-width: 630px;
   background-color: #ffffff;
   border-radius: 10px;
-  padding: 40px;
+  border: 0.7px solid #d4dbe5;
+  padding: 40px 30px 48px;
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
@@ -160,8 +161,9 @@ export const PopupContainer = styled.div`
     width: 100%;
     max-width: 100%;
     background-color: #ffffff;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 0;
+    border: 0.7px solid #d4dbe5;
+    padding: 20px 16px 32px;
     position: relative;
     max-height: 90vh;
     overflow-y: auto;

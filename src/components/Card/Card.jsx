@@ -11,8 +11,6 @@ import {
 } from "./Card.styled";
 
 const Card = ({ themeClass, themeText, title, date, onOpenCard }) => {
-  console.log("Card получил props:", { onOpenCard });
-
   // Функция для форматирования даты
   const formatDate = (dateString) => {
     if (!dateString) return "";
